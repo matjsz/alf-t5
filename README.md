@@ -3,8 +3,8 @@
     <img src="docs/CoAL-1 Logo.png" width="100rem" />
     <p>Conlang Auto Learner</p>
     <div style="display: flex; justify-content: center; gap: .5rem;">
-        <img src="https://img.shields.io/badge/3.12-blue?style=plastic&label=python" />
-        <img src="https://img.shields.io/badge/2.6-orange?style=plastic&label=torch" />
+        <img src="https://img.shields.io/badge/3.12+-blue?style=plastic&label=python" />
+        <img src="https://img.shields.io/badge/2.4+-orange?style=plastic&label=torch" />
         <img src="https://img.shields.io/badge/1.0-green?style=plastic&label=stable" />
     </div>
 </div>
@@ -12,6 +12,10 @@
 ---
 
 A neural machine translation system that automatically learns and translates constructed languages (conlangs) based on a small set of translation examples. This project uses transfer learning with pre-trained language models to achieve high-quality translations with minimal training data.
+
+![Showcase](docs/showcase.png)
+
+In the example above, **CoAL** learned a language with only 45 examples via transfer learning and augmentation techniques.
 
 ## Features
 
@@ -22,6 +26,7 @@ A neural machine translation system that automatically learns and translates con
 - **Data Augmentation**: Automatically expands limited training data
 - **Interactive Mode**: Command-line interface for real-time translations
 - **Batch Processing**: Support for translating multiple texts or files
+
 
 ## Development
 
