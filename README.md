@@ -23,6 +23,17 @@ A neural machine translation system that automatically learns and translates con
 - **Interactive Mode**: Command-line interface for real-time translations
 - **Batch Processing**: Support for translating multiple texts or files
 
+## Development
+
+**CoAL** was tested on a diverse range of hardware, which has helped a lot on understanding the capabilities of the neural network and its problems. Luckily, there were more good surprises than problems, but improvement is never a waste of time, so it will be key to keep improving the neural network architecture.
+
+The hardware in which it was tested was:
+
+- **NVIDIA T4**: Used during early development, specially on the architecture without learning transfer. Yielded some good insights on performance and capability;
+- **TPU v2**: Also used during early development, but was the first to be used on the learning transfer architecture. Was key to understand the final shape of the neural network's architecture;
+- **NVIDIA A40**: Yielded awesome insights on later development, as it was used to test T5-Small and T5-Base, the first base models to grant SoTA performance;
+- **NVIDIA A100**: The most powerful and important hardware used in development, could handle many tests and really yielded key insights to understand data structure and how the model was using it to leverage performance.
+
 ## Installation
 
 ### Start locally
@@ -43,6 +54,10 @@ pip install torch transformers peft tqdm matplotlib sentencepiece
 ## Quick Start
 
 ### Training a New Translator
+
+#### Important note about T5-Large
+
+If choosing to use **T5-Large** as the base for **CoAL**, it is known that it's not possible to use **FP16** due to a problem with **T5ForConditionalGeneration** (You can [check this issue](https://github.com/huggingface/transformers/issues/10830) to learn more about it), so it's **required** to disable **FP16** on **CoALT5Translator** in order to train it, otherwise it will have **NaN** loss on `train_loss` and a constant `val_loss`.
 
 ```python
 from coal_t5 import CoALT5Translator, extract_dataset
