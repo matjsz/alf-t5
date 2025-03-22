@@ -13,6 +13,19 @@ from collections import defaultdict, Counter
 from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
 
+import nltk
+from nltk.translate.bleu_score import sentence_bleu, corpus_bleu, SmoothingFunction
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import List, Dict, Tuple, Any, Optional
+
+try:
+    nltk.data.find('tokenizers/punkt')
+    nltk.data.find('tokenizers/punkt_tab')
+except LookupError:
+    nltk.download('punkt')
+    nltk.download('punkt_tab')
+
 # For pre-trained models
 from transformers import (
     T5ForConditionalGeneration, T5Tokenizer,
@@ -112,6 +125,157 @@ def augment_data(data_pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
                             break
     
     return augmented_pairs
+
+def calculate_bleu(reference: str, hypothesis: str, weights=(0.25, 0.25, 0.25, 0.25)) -> float:
+    """
+    Calculate BLEU score for a single translation.
+    
+    Args:
+        reference: Reference (ground truth) translation
+        hypothesis: Model's translation
+        weights: Weights for unigrams, bigrams, trigrams, and 4-grams
+        
+    Returns:
+        BLEU score (0-1)
+    """
+    # Tokenize sentences
+    ref_tokens = nltk.word_tokenize(reference.lower())
+    hyp_tokens = nltk.word_tokenize(hypothesis.lower())
+    
+    # Apply smoothing for short sentences
+    smoothing = SmoothingFunction().method1
+    
+    # Calculate BLEU score
+    return sentence_bleu([ref_tokens], hyp_tokens, weights=weights, smoothing_function=smoothing)
+
+def evaluate_model_bleu(model_path, test_data_file, output_file=None, direction="c2e"):
+    """
+    Evaluate a trained model using BLEU score.
+    
+    Args:
+        model_path: Path to the trained model
+        test_data_file: Path to test data file (format: conlang|english)
+        output_file: Path to save detailed results (optional)
+        direction: Translation direction ('c2e' or 'e2c')
+    """
+    # Load model
+    translator = T5ConlangTranslator.load(model_path)
+    print(f"Model loaded from {model_path}")
+    
+    # Load test data
+    with open(test_data_file, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    
+    test_data = []
+    for line in lines:
+        line = line.strip()
+        if '|' in line:
+            conlang, english = line.split('|', 1)
+            test_data.append((conlang.strip(), english.strip()))
+    
+    print(f"Loaded {len(test_data)} test examples")
+    
+    # Evaluate BLEU
+    results = translator.evaluate_bleu(test_data, direction=direction)
+    
+    # Print results
+    print(f"Corpus BLEU: {results['corpus_bleu']:.4f}")
+    print(f"Mean BLEU: {results['mean_bleu']:.4f}")
+    print(f"Median BLEU: {results['median_bleu']:.4f}")
+    print(f"Min BLEU: {results['min_bleu']:.4f}")
+    print(f"Max BLEU: {results['max_bleu']:.4f}")
+    
+    # Print example translations
+    print("\nExample Translations:")
+    for i, example in enumerate(results["examples"]):
+        if direction == "c2e":
+            print(f"Example {i+1}:")
+            print(f"Conlang: {example['conlang']}")
+            print(f"Reference: {example['reference']}")
+            print(f"Translation: {example['translation']}")
+            print(f"BLEU: {example['bleu']:.4f}")
+        else:
+            print(f"Example {i+1}:")
+            print(f"English: {example['english']}")
+            print(f"Reference: {example['reference']}")
+            print(f"Translation: {example['translation']}")
+            print(f"BLEU: {example['bleu']:.4f}")
+        print()
+    
+    # Save detailed results
+    if output_file:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2)
+        print(f"Detailed results saved to {output_file}")
+    
+    return results
+
+def interpret_bleu_score(bleu_score, dataset_size=None):
+    """
+    Interpret BLEU score for conlang translation.
+    
+    Args:
+        bleu_score: BLEU score (0-1)
+        dataset_size: Size of training dataset (optional)
+        
+    Returns:
+        Dictionary with interpretation
+    """
+    # Base interpretation
+    if bleu_score < 0.10:
+        quality = "Poor"
+        description = "Translations are mostly incorrect or nonsensical."
+    elif bleu_score < 0.20:
+        quality = "Fair"
+        description = "Some words are translated correctly, but grammar is incorrect."
+    elif bleu_score < 0.30:
+        quality = "Moderate"
+        description = "Translations are understandable but contain significant errors."
+    elif bleu_score < 0.40:
+        quality = "Good"
+        description = "Translations are mostly correct with some minor errors."
+    elif bleu_score < 0.50:
+        quality = "Very Good"
+        description = "Translations are fluent and accurate with few errors."
+    else:
+        quality = "Excellent"
+        description = "Translations are nearly perfect."
+    
+    # Adjust interpretation based on dataset size
+    if dataset_size is not None:
+        if dataset_size < 50:
+            relative_quality = "Excellent" if bleu_score > 0.25 else \
+                              "Very Good" if bleu_score > 0.20 else \
+                              "Good" if bleu_score > 0.15 else \
+                              "Moderate" if bleu_score > 0.10 else \
+                              "Fair" if bleu_score > 0.05 else "Poor"
+            
+            context = f"For a small dataset of {dataset_size} examples, this is {relative_quality}."
+        elif dataset_size < 200:
+            relative_quality = "Excellent" if bleu_score > 0.35 else \
+                              "Very Good" if bleu_score > 0.30 else \
+                              "Good" if bleu_score > 0.25 else \
+                              "Moderate" if bleu_score > 0.15 else \
+                              "Fair" if bleu_score > 0.10 else "Poor"
+            
+            context = f"For a medium dataset of {dataset_size} examples, this is {relative_quality}."
+        else:
+            relative_quality = "Excellent" if bleu_score > 0.45 else \
+                              "Very Good" if bleu_score > 0.40 else \
+                              "Good" if bleu_score > 0.30 else \
+                              "Moderate" if bleu_score > 0.20 else \
+                              "Fair" if bleu_score > 0.15 else "Poor"
+            
+            context = f"For a large dataset of {dataset_size} examples, this is {relative_quality}."
+    else:
+        context = None
+    
+    return {
+        "score": bleu_score,
+        "quality": quality,
+        "description": description,
+        "context": context
+    }
 
 # Dataset for Conlang Translation
 class CoALDataset(Dataset):
@@ -296,14 +460,140 @@ class CoALT5Translator:
             num_training_steps=num_training_steps
         )
     
+    def evaluate_bleu(
+        self,
+        test_data: List[Tuple[str, str]],
+        direction: str = "c2e",
+        batch_size: int = 8,
+        ngram_weights: Tuple[float, ...] = (0.25, 0.25, 0.25, 0.25)
+    ) -> Dict[str, Any]:
+        """Evaluate model using BLEU score on test data."""
+        self.model.eval()
+        
+        all_sources = []
+        all_targets = []
+        all_translations = []
+        
+        # Process in batches
+        for i in range(0, len(test_data), batch_size):
+            batch = test_data[i:i+batch_size]
+            
+            # Prepare source and reference texts
+            if direction == "c2e":
+                sources = [pair[0] for pair in batch]
+                targets = [pair[1] for pair in batch]
+            else:  # "e2c"
+                sources = [pair[1] for pair in batch]
+                targets = [pair[0] for pair in batch]
+            
+            all_sources.extend(sources)
+            all_targets.extend(targets)
+            
+            # Generate translations
+            translations = self.batch_translate(sources, direction)
+            all_translations.extend(translations)
+        
+        # Prepare references and hypotheses for BLEU calculation
+        references = [[nltk.word_tokenize(target.lower())] for target in all_targets]
+        hypotheses = [nltk.word_tokenize(translation.lower()) for translation in all_translations]
+        
+        # Calculate corpus BLEU
+        smoothing = SmoothingFunction().method1
+        corpus_bleu_score = corpus_bleu(references, hypotheses, weights=ngram_weights, smoothing_function=smoothing)
+        
+        # Calculate individual BLEU scores
+        individual_scores = [
+            sentence_bleu(ref, hyp, weights=ngram_weights, smoothing_function=smoothing)
+            for ref, hyp in zip(references, hypotheses)
+        ]
+        
+        # Calculate statistics
+        mean_score = np.mean(individual_scores)
+        median_score = np.median(individual_scores)
+        min_score = np.min(individual_scores)
+        max_score = np.max(individual_scores)
+        
+        # Prepare example results
+        examples = []
+        for i in range(min(10, len(test_data))):
+            examples.append({
+                "source": all_sources[i],
+                "reference": all_targets[i],
+                "translation": all_translations[i],
+                "bleu": individual_scores[i]
+            })
+        
+        return {
+            "corpus_bleu": corpus_bleu_score,
+            "mean_bleu": mean_score,
+            "median_bleu": median_score,
+            "min_bleu": min_score,
+            "max_bleu": max_score,
+            "examples": examples
+        }
+
+    def batch_translate(
+        self,
+        texts: List[str],
+        direction: str = "c2e",
+        max_length: int = None,
+        num_beams: int = 5
+    ) -> List[str]:
+        """Translate a batch of texts."""
+        if max_length is None:
+            max_length = self.max_length
+        
+        # Set prefix based on direction
+        if direction == "c2e":
+            prefix = "translate conlang to english: "
+        else:  # "e2c"
+            prefix = "translate english to conlang: "
+        
+        # Prepare inputs
+        input_texts = [f"{prefix}{text}" for text in texts]
+        
+        # Tokenize inputs
+        inputs = self.tokenizer(
+            input_texts,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=self.max_length
+        )
+        
+        # Move to device
+        input_ids = inputs["input_ids"].to(self.device)
+        attention_mask = inputs["attention_mask"].to(self.device)
+        
+        # Generate translations
+        self.model.eval()
+        with torch.no_grad():
+            outputs = self.model.generate(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                max_length=max_length,
+                num_beams=num_beams,
+                early_stopping=True
+            )
+        
+        # Decode outputs
+        translations = [
+            self.tokenizer.decode(output, skip_special_tokens=True)
+            for output in outputs
+        ]
+        
+        return translations
+    
     def train(
         self,
         data_string: str,
         test_size: float = 0.1,
         augment: bool = True,
-        early_stopping_patience: int = 5
+        early_stopping_patience: int = 5,
+        eval_bleu: bool = True,
+        bleu_eval_steps: int = 5  # Evaluate BLEU every N epochs
     ):
-        """Train the translator on conlang data."""
+        """Train the translator on conlang data with BLEU evaluation."""
         # Parse data
         data_pairs = parse_conlang_data(data_string)
         if not data_pairs:
@@ -382,8 +672,12 @@ class CoALT5Translator:
         num_training_steps = len(train_dataloader) * self.num_epochs
         self._initialize_optimizer_and_scheduler(num_training_steps)
         
+        # Add BLEU tracking to history
+        self.history["bleu_scores"] = []
+        
         # Training loop
         best_val_loss = float("inf")
+        best_bleu_score = 0.0
         patience_counter = 0
         
         print(f"Starting training for {self.num_epochs} epochs...")
@@ -479,8 +773,26 @@ class CoALT5Translator:
             avg_val_loss = val_loss / val_steps
             self.history["val_loss"].append(avg_val_loss)
             
-            # Print epoch summary
-            print(f"Epoch {epoch+1}/{self.num_epochs} - Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
+            if eval_bleu and (epoch + 1) % bleu_eval_steps == 0:
+                print(f"Evaluating BLEU score after epoch {epoch+1}...")
+                
+                # Evaluate on test data
+                bleu_results = self.evaluate_bleu(test_data, direction="c2e")
+                
+                # Store in history
+                if "bleu_scores" not in self.history:
+                    self.history["bleu_scores"] = []
+                    
+                self.history["bleu_scores"].append({
+                    "epoch": epoch + 1,
+                    "corpus_bleu": bleu_results["corpus_bleu"],
+                    "mean_bleu": bleu_results["mean_bleu"]
+                })
+                
+                print(f"Epoch {epoch+1}: BLEU Score: {bleu_results['corpus_bleu']:.4f}")
+            else:
+                # Print epoch summary
+                print(f"Epoch {epoch+1}/{self.num_epochs} - Train Loss: {avg_train_loss:.4f}, Val Loss: {avg_val_loss:.4f}")
             
             # Check for improvement
             if avg_val_loss < best_val_loss:
@@ -502,6 +814,15 @@ class CoALT5Translator:
             if (epoch + 1) % 5 == 0 or (epoch + 1) == self.num_epochs:
                 self._save_checkpoint(f"{self.output_dir}/checkpoint-epoch-{epoch+1}")
         
+        if eval_bleu:
+            print("Performing final BLEU evaluation...")
+            final_bleu_results = self.evaluate_bleu(test_data, direction="c2e")
+            print(f"Final BLEU Score: {final_bleu_results['corpus_bleu']:.4f}")
+            
+            # Save detailed BLEU results
+            with open(f"{self.output_dir}/bleu_results.json", "w") as f:
+                json.dump(final_bleu_results, f, indent=2)
+
         # Save final model
         self._save_checkpoint(f"{self.output_dir}/final_model")
         
@@ -614,25 +935,58 @@ class CoALT5Translator:
     
     def _plot_training_history(self):
         """Plot training history."""
-        plt.figure(figsize=(12, 5))
-        
-        # Plot losses
-        plt.subplot(1, 2, 1)
-        plt.plot(self.history["train_loss"], label="Train Loss")
-        plt.plot(self.history["val_loss"], label="Validation Loss")
-        plt.xlabel("Epoch")
-        plt.ylabel("Loss")
-        plt.title("Training and Validation Loss")
-        plt.legend()
-        plt.grid(True)
-        
-        # Plot learning rate
-        plt.subplot(1, 2, 2)
-        plt.plot(self.history["learning_rates"])
-        plt.xlabel("Step")
-        plt.ylabel("Learning Rate")
-        plt.title("Learning Rate Schedule")
-        plt.grid(True)
+        if "bleu_scores" in self.history and self.history["bleu_scores"]:
+            # Create a figure with 3 subplots
+            plt.figure(figsize=(15, 5))
+            
+            # Plot losses
+            plt.subplot(1, 3, 1)
+            plt.plot(self.history["train_loss"], label="Train Loss")
+            plt.plot(self.history["val_loss"], label="Validation Loss")
+            plt.xlabel("Epoch")
+            plt.ylabel("Loss")
+            plt.title("Training and Validation Loss")
+            plt.legend()
+            plt.grid(True)
+            
+            # Plot learning rate
+            plt.subplot(1, 3, 2)
+            plt.plot(self.history["learning_rates"])
+            plt.xlabel("Step")
+            plt.ylabel("Learning Rate")
+            plt.title("Learning Rate Schedule")
+            plt.grid(True)
+            
+            # Plot BLEU scores
+            plt.subplot(1, 3, 3)
+            epochs = [item["epoch"] for item in self.history["bleu_scores"]]
+            bleu_scores = [item["corpus_bleu"] for item in self.history["bleu_scores"]]
+            plt.plot(epochs, bleu_scores, marker='o')
+            plt.xlabel("Epoch")
+            plt.ylabel("BLEU Score")
+            plt.title("BLEU Score Progress")
+            plt.grid(True)
+        else:
+            # Original plotting code for just losses and learning rate
+            plt.figure(figsize=(12, 5))
+            
+            # Plot losses
+            plt.subplot(1, 2, 1)
+            plt.plot(self.history["train_loss"], label="Train Loss")
+            plt.plot(self.history["val_loss"], label="Validation Loss")
+            plt.xlabel("Epoch")
+            plt.ylabel("Loss")
+            plt.title("Training and Validation Loss")
+            plt.legend()
+            plt.grid(True)
+            
+            # Plot learning rate
+            plt.subplot(1, 2, 2)
+            plt.plot(self.history["learning_rates"])
+            plt.xlabel("Step")
+            plt.ylabel("Learning Rate")
+            plt.title("Learning Rate Schedule")
+            plt.grid(True)
         
         plt.tight_layout()
         plt.savefig(f"{self.output_dir}/training_history.png")
