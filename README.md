@@ -1,4 +1,4 @@
-<center>
+<div align="center">
     <h1>CoAL-1</h1>
     <img src="docs/CoAL-1 Logo.png" width="100rem" />
     <p>Conlang Auto Learner</p>
@@ -7,7 +7,7 @@
         <img src="https://img.shields.io/badge/2.6-orange?style=plastic&label=torch" />
         <img src="https://img.shields.io/badge/1.0-green?style=plastic&label=stable" />
     </div>
-</center>
+</div>
 
 ---
 
