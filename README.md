@@ -32,12 +32,12 @@ In the example above, **CoAL** learned a language with only 45 examples via tran
 
 ## Development
 
-**CoAL** was tested on a diverse range of hardware, which has helped a lot on understanding the capabilities of the neural network and its problems. Luckily, there were more good surprises than problems, but improvement is never a waste of time, so it will be key to keep improving the neural network architecture.
+**CoAL** was tested on a diverse range of hardware, which has helped a lot on understanding the capabilities of the system and its problems. Luckily, there were more good surprises than problems, but improvement is never a waste of time, so it will be key to keep improving **CoAL**'s architecture.
 
 The hardware in which it was tested was:
 
 - **NVIDIA T4**: Used during early development, specially on the architecture without learning transfer. Yielded some good insights on performance and capability;
-- **TPU v2**: Also used during early development, but was the first to be used on the learning transfer architecture. Was key to understand the final shape of the neural network's architecture;
+- **TPU v2**: Also used during early development, but was the first to be used on the learning transfer architecture. Was key to understand the final shape of the system's architecture;
 - **NVIDIA A40**: Yielded awesome insights on later development, as it was used to test T5-Small and T5-Base, the first base models to grant SoTA performance;
 - **NVIDIA A100**: The most powerful and important hardware used in development, could handle many tests and really yielded key insights to understand data structure and how the model was using it to leverage performance.
 
