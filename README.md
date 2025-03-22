@@ -87,6 +87,66 @@ translator.train(
 )
 ```
 
+### Important information regarding training
+
+After training your conlang, you will notice that it has a validation loss value (`val_loss`), if you don't know how to interpret it, the table below explains what it could mean, it may vary, but it's mostly something close to the values on the table:
+
+| Loss Range | Interpretation | Translation Quality
+|-----|-----|-----
+| > 3.0 | Poor convergence | Mostly incorrect translations
+| 2.0 - 3.0 | Basic learning | Captures some words but grammatically incorrect
+| 1.0 - 2.0 | Good learning | Understandable translations with some errors
+| 0.5 - 1.0 | Very good | Mostly correct translations
+| < 0.5 | Excellent | Near-perfect translations
+
+If you constantly train the conlang and the values doesn't improve or the `val_loss` remain stuck on a single value, it usually means that your conlang dataset needs more data and **CoAL-1** isn't able to learn any further (it has a limit too!).
+
+#### Tips
+
+**Target validation loss**: Aim for **0.8-1.5** with a small dataset (30-100 examples). It may be easier for languages with a more clear structure, but languages like Na'vi are usually harder for **CoAL-1** to learn.
+
+**Early stopping patience**: Set to 5-10 epochs, as loss may plateau before improving again
+
+**Overfitting signals**:
+- Training loss much lower than validation loss (gap > 0.5)
+- Validation loss decreasing then increasing
+
+**Underfitting signals**:
+- Both losses remain high (> 2.0)
+- Losses decrease very slowly
+
+If **overfit**: The model may be learning well, but has few data. This indicates that the language is easy to learn.
+
+If **underfit**: The model may be struggling to learn, more data is needed. This indicates that the language is hard to learn.
+
+#### BLEU Score
+
+The BLEU score is a number between zero and one that measures the similarity of the machine-translated text to a set of high quality reference translations. This score is applied to your conlang automatically during training if enabled by `eval_bleu` at `CoalT5Translator`. It usually means:
+
+| BLEU Score | Interpretation | Translation Quality |
+|-----|-----|-----
+| < 0.1 | Poor | Translations are mostly incorrect or nonsensical. |
+| < 0.2 | Fair | Some words are translated correctly, but grammar is incorrect. |
+| < 0.3 | Moderate | Translations are understandable but contain significant errors. |
+| < 0.4 | Good | Translations are mostly correct with some minor errors. |
+| < 0.5 | Very Good | Translations are fluent and accurate with few errors. |
+| > 0.5 | Excellent | Translations are nearly perfect. |
+
+You can also do the following:
+
+```python
+from coal_t5 import interpret_bleu_score
+
+interpret_bleu_score(0.6961, 100)
+```
+
+```
+{'score': 0.6961,
+ 'quality': 'Excellent',
+ 'description': 'Translations are nearly perfect.',
+ 'context': 'For a medium dataset of 100 examples, this is Excellent.'}
+```
+
 ### Testing The Translator
 
 ```python
