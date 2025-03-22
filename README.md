@@ -37,7 +37,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install torch transformers peft tqdm matplotlib
+pip install torch transformers peft tqdm matplotlib sentencepiece
 ```
 
 ## Quick Start
