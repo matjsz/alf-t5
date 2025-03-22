@@ -15,7 +15,9 @@ A neural machine translation system that automatically learns and translates con
 
 ![Showcase](docs/showcase.png)
 
-In the example above, **CoAL** learned a language with only 45 examples via transfer learning and augmentation techniques.
+In the example above, **CoAL** learned a language with only 45 examples via transfer learning and augmentation techniques. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://huggingface.co/datasets/paulopirozelli/pira)*)
+
+![Showcase 2](docs/showcase-2.png)
 
 ## Features
 
