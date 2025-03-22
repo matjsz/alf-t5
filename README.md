@@ -154,7 +154,6 @@ For conlang translation, T5's encoder-decoder architecture offers several advant
 3. **Training Stability**: More stable during fine-tuning for translation tasks
 4. **Resource Requirements**: Requires less computational resources
 
-
 ### Data Augmentation
 
 To maximize learning from limited examples, the system employs several data augmentation techniques:
@@ -162,23 +161,6 @@ To maximize learning from limited examples, the system employs several data augm
 1. **Case Variations**: Adding capitalized versions of examples
 2. **Word Order Variations**: Adding reversed word order for multi-word phrases
 3. **Vocabulary Recombination**: Creating new combinations from existing vocabulary mappings
-
-Thought for 3 seconds### Conlang Translator
-
-## Project Structure
-
-```plaintext
-conlang-translator/
-├── coal_t5.py     # Main implementation with T5
-├── coal_llama.py  # Alternative implementation with Llama
-├── simple_usage.py         # Simple script to use a trained model
-├── coal_app.py    # Advanced application with multiple modes
-├── README.md                    # This file
-└── coal_t5_translator/       # Directory for trained models
-    ├── final_model/             # Saved model after training
-    ├── best_model/              # Best model based on validation loss
-    └── training_history.png     # Plot of training metrics
-```
 
 ## Training Process
 
@@ -203,21 +185,6 @@ Key parameters that can be configured:
 - `lr`: Learning rate (default: 5e-4)
 - `num_epochs`: Maximum number of training epochs (default: 20)
 - `max_length`: Maximum sequence length (default: 128)
-
-
-## Translation Parameters
-
-When translating text, you can configure:
-
-- `direction`: Translation direction ("c2e" or "e2c")
-- `num_beams`: Number of beams for beam search (default: 5)
-- `temperature`: Sampling temperature (default: 1.0)
-- `top_p`: Nucleus sampling parameter (default: None)
-- `do_sample`: Whether to use sampling instead of greedy decoding (default: False)
-
-Thought for 3 seconds### Conlang Translator
-
-A neural machine translation system that automatically learns and translates constructed languages (conlangs) based on a small set of translation examples. This project uses transfer learning with pre-trained language models to achieve high-quality translations with minimal training data.
 
 ## Advanced Usage
 
