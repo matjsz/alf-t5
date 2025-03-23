@@ -30,7 +30,7 @@ In the example above, **T5** learned a language with only 45 examples via transf
 - **Batch Processing**: Support for translating multiple texts or files
 
 
-## Development
+## Hardware
 
 **ALF-T5** was tested on a diverse range of hardware, which has helped a lot on understanding the capabilities of the system and its problems. Luckily, there were more good surprises than problems, but improvement is never a waste of time, so it will be key to keep improving **ALF-T5**'s architecture.
 
