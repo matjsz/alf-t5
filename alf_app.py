@@ -2,9 +2,9 @@ import torch
 import argparse
 import json
 from pathlib import Path
-from coal_t5 import CoALT5Translator
+from alf_t5 import ALFT5Translator
 
-class CoALTranslatorApp:
+class ALFTranslatorApp:
     def __init__(self, model_path):
         """Initialize the translator app with a trained model."""
         self.model_path = model_path
@@ -22,7 +22,7 @@ class CoALTranslatorApp:
     def _load_model(self, model_path):
         """Load the trained model from the specified path."""
         try:
-            translator = CoALT5Translator.load(model_path)
+            translator = ALFT5Translator.load(model_path)
             print(f"Model loaded successfully from {model_path}")
             return translator
         except Exception as e:
@@ -103,7 +103,7 @@ class CoALTranslatorApp:
     
     def interactive_mode(self):
         """Run an interactive translation session."""
-        print("\nCoAL Interactive Mode")
+        print("\nALF Interactive Mode")
         print("Type 'quit' to exit, 'help' for commands")
         
         while True:
@@ -180,8 +180,8 @@ class CoALTranslatorApp:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="CoAL-1")
-    parser.add_argument("--model", type=str, default="coal_t5_translator/final_model",
+    parser = argparse.ArgumentParser(description="ALF-1")
+    parser.add_argument("--model", type=str, default="alf_t5_translator/final_model",
                         help="Path to the trained model directory")
     parser.add_argument("--mode", type=str, choices=["interactive", "file", "batch"], 
                         default="interactive", help="Operation mode")
@@ -193,7 +193,7 @@ def main():
     args = parser.parse_args()
     
     # Create the translator app
-    app = CoALTranslatorApp(args.model)
+    app = ALFTranslatorApp(args.model)
     
     # Run in the specified mode
     if args.mode == "interactive":

@@ -56,17 +56,17 @@ def set_seed(seed: int = 42) -> None:
 
 set_seed(42)
 
-# Parse conlang data
-def parse_conlang_data(data_string: str) -> List[Tuple[str, str]]:
-    """Parse conlang data in the format conlang|translationd."""
+# Parse language data
+def parse_language_data(data_string: str) -> List[Tuple[str, str]]:
+    """Parse language data in the format language|translation."""
     pairs = []
     for line in data_string.strip().split('\n'):
         line = line.strip()
         if not line:
             continue
             
-        conlang, english = line.split("|")
-        pairs.append((conlang, english))
+        language, english = line.split("|")
+        pairs.append((language, english))
     return pairs
 
 # Data augmentation techniques
@@ -75,53 +75,53 @@ def augment_data(data_pairs: List[Tuple[str, str]]) -> List[Tuple[str, str]]:
     augmented_pairs = data_pairs.copy()
     
     # 1. Add capitalized versions
-    for conlang, english in data_pairs:
-        if len(conlang) > 0 and len(english) > 0:
-            augmented_pairs.append((conlang.capitalize(), english.capitalize()))
+    for language, english in data_pairs:
+        if len(language) > 0 and len(english) > 0:
+            augmented_pairs.append((language.capitalize(), english.capitalize()))
     
     # 2. Add reversed word order for multi-word phrases
-    for conlang, english in data_pairs:
-        conlang_words = conlang.split()
+    for language, english in data_pairs:
+        language_words = language.split()
         english_words = english.split()
         
-        if len(conlang_words) > 1 and len(english_words) > 1:
-            reversed_conlang = ' '.join(conlang_words[::-1])
+        if len(language_words) > 1 and len(english_words) > 1:
+            reversed_language = ' '.join(language_words[::-1])
             reversed_english = ' '.join(english_words[::-1])
-            augmented_pairs.append((reversed_conlang, reversed_english))
+            augmented_pairs.append((reversed_language, reversed_english))
     
     # 3. Create new combinations from existing vocabulary
-    conlang_word_map = {}
+    language_word_map = {}
     english_word_map = {}
     
     # Build word mappings
-    for conlang, english in data_pairs:
-        conlang_words = conlang.split()
+    for language, english in data_pairs:
+        language_words = language.split()
         english_words = english.split()
         
-        if len(conlang_words) == len(english_words):
-            for c_word, e_word in zip(conlang_words, english_words):
-                if c_word not in conlang_word_map:
-                    conlang_word_map[c_word] = []
+        if len(language_words) == len(english_words):
+            for c_word, e_word in zip(language_words, english_words):
+                if c_word not in language_word_map:
+                    language_word_map[c_word] = []
                 if e_word not in english_word_map:
                     english_word_map[e_word] = []
                 
-                conlang_word_map[c_word].append(e_word)
+                language_word_map[c_word].append(e_word)
                 english_word_map[e_word].append(c_word)
     
     # Create new combinations
-    for conlang, english in data_pairs:
-        conlang_words = conlang.split()
+    for language, english in data_pairs:
+        language_words = language.split()
         english_words = english.split()
         
-        if len(conlang_words) > 1 and len(english_words) > 1:
+        if len(language_words) > 1 and len(english_words) > 1:
             # Swap one word
-            for i in range(len(conlang_words)):
-                if conlang_words[i] in conlang_word_map and len(conlang_word_map[conlang_words[i]]) > 1:
-                    for alt_english in conlang_word_map[conlang_words[i]]:
+            for i in range(len(language_words)):
+                if language_words[i] in language_word_map and len(language_word_map[language_words[i]]) > 1:
+                    for alt_english in language_word_map[language_words[i]]:
                         if alt_english != english_words[i]:
                             new_english_words = english_words.copy()
                             new_english_words[i] = alt_english
-                            augmented_pairs.append((conlang, ' '.join(new_english_words)))
+                            augmented_pairs.append((language, ' '.join(new_english_words)))
                             break
     
     return augmented_pairs
@@ -154,7 +154,7 @@ def evaluate_model_bleu(model_path, test_data_file, output_file=None, direction=
     
     Args:
         model_path: Path to the trained model
-        test_data_file: Path to test data file (format: conlang|english)
+        test_data_file: Path to test data file (format: language|english)
         output_file: Path to save detailed results (optional)
         direction: Translation direction ('c2e' or 'e2c')
     """
@@ -170,8 +170,8 @@ def evaluate_model_bleu(model_path, test_data_file, output_file=None, direction=
     for line in lines:
         line = line.strip()
         if '|' in line:
-            conlang, english = line.split('|', 1)
-            test_data.append((conlang.strip(), english.strip()))
+            language, english = line.split('|', 1)
+            test_data.append((language.strip(), english.strip()))
     
     print(f"Loaded {len(test_data)} test examples")
     
@@ -190,7 +190,7 @@ def evaluate_model_bleu(model_path, test_data_file, output_file=None, direction=
     for i, example in enumerate(results["examples"]):
         if direction == "c2e":
             print(f"Example {i+1}:")
-            print(f"Conlang: {example['conlang']}")
+            print(f"Conlang: {example['language']}")
             print(f"Reference: {example['reference']}")
             print(f"Translation: {example['translation']}")
             print(f"BLEU: {example['bleu']:.4f}")
@@ -212,7 +212,7 @@ def evaluate_model_bleu(model_path, test_data_file, output_file=None, direction=
 
 def interpret_bleu_score(bleu_score, dataset_size=None):
     """
-    Interpret BLEU score for conlang translation.
+    Interpret BLEU score for language translation.
     
     Args:
         bleu_score: BLEU score (0-1)
@@ -278,8 +278,8 @@ def interpret_bleu_score(bleu_score, dataset_size=None):
     }
 
 # Dataset for Conlang Translation
-class CoALDataset(Dataset):
-    """Dataset for conlang translation pairs."""
+class ALFDataset(Dataset):
+    """Dataset for language translation pairs."""
     def __init__(
         self, 
         data_pairs: List[Tuple[str, str]], 
@@ -294,9 +294,9 @@ class CoALDataset(Dataset):
         
         # Set prefix based on direction
         if direction == "c2e":
-            self.prefix = "translate conlang to english: "
+            self.prefix = "translate language to english: "
         else:  # "e2c"
-            self.prefix = "translate english to conlang: "
+            self.prefix = "translate english to language: "
     
     def __len__(self) -> int:
         return len(self.data_pairs)
@@ -346,9 +346,9 @@ class CoALDataset(Dataset):
             "tgt_text": tgt
         }
 
-# T5 CoAL Implementation
-class CoALT5Translator:
-    """CoAL translator using T5 model."""
+# T5 ALF Implementation
+class ALFT5Translator:
+    """ALF translator using T5 model."""
     def __init__(
         self,
         model_name: str = "t5-small",
@@ -363,7 +363,7 @@ class CoALT5Translator:
         max_length: int = 128,
         use_fp16: bool = True,
         warmup_ratio: float = 0.1,
-        output_dir: str = "coal_t5_translator"
+        output_dir: str = "alf_t5_translator"
     ):
         self.model_name = model_name
         self.use_peft = use_peft
@@ -545,9 +545,9 @@ class CoALT5Translator:
         
         # Set prefix based on direction
         if direction == "c2e":
-            prefix = "translate conlang to english: "
+            prefix = "translate language to english: "
         else:  # "e2c"
-            prefix = "translate english to conlang: "
+            prefix = "translate english to language: "
         
         # Prepare inputs
         input_texts = [f"{prefix}{text}" for text in texts]
@@ -593,9 +593,9 @@ class CoALT5Translator:
         eval_bleu: bool = True,
         bleu_eval_steps: int = 5  # Evaluate BLEU every N epochs
     ):
-        """Train the translator on conlang data with BLEU evaluation."""
+        """Train the translator on language data with BLEU evaluation."""
         # Parse data
-        data_pairs = parse_conlang_data(data_string)
+        data_pairs = parse_language_data(data_string)
         if not data_pairs:
             raise ValueError("No valid data pairs found in the input string")
         
@@ -618,14 +618,14 @@ class CoALT5Translator:
         self._initialize_model_and_tokenizer()
         
         # Create datasets for both directions (c2e and e2c)
-        train_dataset_c2e = CoALDataset(
+        train_dataset_c2e = ALFDataset(
             train_data,
             self.tokenizer,
             max_length=self.max_length,
             direction="c2e"
         )
         
-        train_dataset_e2c = CoALDataset(
+        train_dataset_e2c = ALFDataset(
             train_data,
             self.tokenizer,
             max_length=self.max_length,
@@ -636,14 +636,14 @@ class CoALT5Translator:
         train_dataset = torch.utils.data.ConcatDataset([train_dataset_c2e, train_dataset_e2c])
         
         # Create validation datasets
-        val_dataset_c2e = CoALDataset(
+        val_dataset_c2e = ALFDataset(
             test_data,
             self.tokenizer,
             max_length=self.max_length,
             direction="c2e"
         )
         
-        val_dataset_e2c = CoALDataset(
+        val_dataset_e2c = ALFDataset(
             test_data,
             self.tokenizer,
             max_length=self.max_length,
@@ -851,9 +851,9 @@ class CoALT5Translator:
         
         # Set prefix based on direction
         if direction == "c2e":
-            prefix = "translate conlang to english: "
+            prefix = "translate language to english: "
         else:  # "e2c"
-            prefix = "translate english to conlang: "
+            prefix = "translate english to language: "
         
         # Prepare input
         input_text = f"{prefix}{text}"
