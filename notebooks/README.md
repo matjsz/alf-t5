@@ -1,5 +1,5 @@
-## CoAL-1 Training Notebooks
+## ALF-T5 Training Notebooks
 
-The notebooks on this folder can be used to train the model on three main bases: **T5-Base** (recommended), **T5-Large** (best results) & **Llama** (experimental).
+The notebooks on this folder can be used to train the model on two main bases: **T5-Base** (recommended) and **T5-Large** (best results).
 
 You can either run it locally or using **Google Collab**, it shouldn't take long to train, but the better the hardware, the faster it will be.
