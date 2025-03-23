@@ -10,7 +10,7 @@ class ALFTranslatorApp:
         self.model_path = model_path
         self.translator = self._load_model(model_path)
         
-        # Default generation parameters
+        # Default generation parameters 
         self.default_params = {
             "num_beams": 5,
             "temperature": 1.0,
@@ -28,55 +28,78 @@ class ALFTranslatorApp:
         except Exception as e:
             raise RuntimeError(f"Failed to load model: {e}")
     
-    def translate_text(self, text, direction="c2e", **kwargs):
+    def translate_text(self, text, direction="c2e", include_confidence=False, **kwargs):
         """Translate a single text."""
-        # Merge default parameters with any provided kwargs
         params = {**self.default_params, **kwargs}
         
         try:
-            translation = self.translator.translate(
+            result = self.translator.translate(
                 text=text,
                 direction=direction,
+                return_confidence=include_confidence,
                 **params
             )
-            return translation
+            
+            if include_confidence:
+                translation, confidence = result
+                return {
+                    "text": text,
+                    "translation": translation,
+                    "confidence": confidence,
+                    "direction": direction
+                }
+            else:
+                return result
         except Exception as e:
             print(f"Error translating '{text}': {e}")
             return f"[Translation error: {str(e)}]"
     
-    def batch_translate(self, texts, directions, **kwargs):
+    def batch_translate(self, texts, directions, include_confidence=False, **kwargs):
         """Translate a batch of texts."""
         results = []
         
         for text, direction in zip(texts, directions):
-            translation = self.translate_text(text, direction, **kwargs)
-            results.append({
-                "source": text,
-                "direction": direction,
-                "translation": translation
-            })
+            result = self.translate_text(text, direction, include_confidence=include_confidence, **kwargs)
+            
+            if include_confidence:
+                results.append(result)
+            else:
+                results.append({
+                    "text": text,
+                    "translation": result,
+                    "direction": direction
+                })
         
         return results
     
-    def translate_file(self, input_file, output_file, direction="c2e", **kwargs):
+    def translate_file(self, input_file, output_file, direction="c2e", include_confidence=False, **kwargs):
         """Translate texts from a file and save results to another file."""
-        # Read input file
         with open(input_file, 'r', encoding='utf-8') as f:
             lines = [line.strip() for line in f if line.strip()]
         
-        # Translate each line
         translations = []
+        confidences = []
         for line in lines:
-            translation = self.translate_text(line, direction, **kwargs)
-            translations.append(translation)
+            result = self.translate_text(line, direction, include_confidence=include_confidence, **kwargs)
+            
+            if include_confidence:
+                translations.append(result["translation"])
+                confidences.append(result["confidence"])
+            else:
+                translations.append(result)
         
-        # Write to output file
         with open(output_file, 'w', encoding='utf-8') as f:
-            for original, translation in zip(lines, translations):
+            for i, (original, translation) in enumerate(zip(lines, translations)):
                 f.write(f"Source: {original}\n")
-                f.write(f"Translation: {translation}\n\n")
+                f.write(f"Translation: {translation}\n")
+                if include_confidence:
+                    f.write(f"Confidence: {confidences[i]:.4f}\n")
+                f.write("\n")
         
         print(f"Translated {len(lines)} lines from {input_file} to {output_file}")
+        
+        if include_confidence:
+            return list(zip(translations, confidences))
         return translations
     
     def save_dictionary(self, output_file):
@@ -106,6 +129,9 @@ class ALFTranslatorApp:
         print("\nALF Interactive Mode")
         print("Type 'quit' to exit, 'help' for commands")
         
+        # Add confidence to default parameters
+        self.show_confidence = False
+        
         while True:
             user_input = input("\n> ").strip()
             
@@ -118,6 +144,7 @@ class ALFTranslatorApp:
                 print("  text | direction - Translate text (direction: c2e or e2c)")
                 print("  params - Show current translation parameters")
                 print("  set param value - Set a translation parameter")
+                print("  confidence on/off - Toggle confidence score display")
                 print("  quit - Exit interactive mode")
                 continue
             
@@ -125,6 +152,19 @@ class ALFTranslatorApp:
                 print("\nCurrent translation parameters:")
                 for param, value in self.default_params.items():
                     print(f"  {param}: {value}")
+                print(f"  confidence: {self.show_confidence}")
+                continue
+            
+            if user_input.lower().startswith('confidence '):
+                option = user_input.lower().split()[1]
+                if option in ['on', 'true', 'yes', '1']:
+                    self.show_confidence = True
+                    print("Confidence scores enabled")
+                elif option in ['off', 'false', 'no', '0']:
+                    self.show_confidence = False
+                    print("Confidence scores disabled")
+                else:
+                    print("Invalid option. Use 'confidence on' or 'confidence off'")
                 continue
             
             if user_input.lower().startswith('set '):
@@ -168,11 +208,17 @@ class ALFTranslatorApp:
                     continue
                 
                 try:
-                    translation = self.translate_text(text, direction)
+                    result = self.translate_text(text, direction, include_confidence=self.show_confidence)
                     src_lang = "Conlang" if direction == "c2e" else "English"
                     tgt_lang = "English" if direction == "c2e" else "Conlang"
+                    
                     print(f"{src_lang}: {text}")
-                    print(f"{tgt_lang}: {translation}")
+                    
+                    if self.show_confidence:
+                        print(f"{tgt_lang}: {result['translation']}")
+                        print(f"Confidence: {result['confidence']:.4f}")
+                    else:
+                        print(f"{tgt_lang}: {result}")
                 except Exception as e:
                     print(f"Error during translation: {e}")
             else:
@@ -189,6 +235,8 @@ def main():
     parser.add_argument("--output", type=str, help="Output file for file mode")
     parser.add_argument("--direction", type=str, choices=["c2e", "e2c"], 
                         default="c2e", help="Translation direction")
+    parser.add_argument("--confidence", action="store_true",
+                        help="Include confidence scores in the output")
     
     args = parser.parse_args()
     
@@ -202,16 +250,21 @@ def main():
         if not args.input or not args.output:
             print("Error: --input and --output are required for file mode")
             return
-        app.translate_file(args.input, args.output, args.direction)
+        app.translate_file(args.input, args.output, args.direction, include_confidence=args.confidence)
     elif args.mode == "batch":
         # Example batch translation
         texts = ["Ith eath", "Thou eath", "Heth eath", "Sheth eath"]
         directions = ["c2e"] * len(texts)
-        results = app.batch_translate(texts, directions)
+        results = app.batch_translate(texts, directions, include_confidence=args.confidence)
         
         for result in results:
-            print(f"Source: {result['source']}")
-            print(f"Translation: {result['translation']}")
+            if args.confidence:
+                print(f"Text: {result['text']}")
+                print(f"Translation: {result['translation']}")
+                print(f"Confidence: {result['confidence']:.4f}")
+            else:
+                print(f"Text: {result['text']}")
+                print(f"Translation: {result['translation']}")
             print()
 
 

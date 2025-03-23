@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  alf-t5:
+    build: .
+    volumes:
+      - ./alf_t5_translator:/app/alf_t5_translator
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    tty: true
+    stdin_open: true
+    command: --mode interactive 

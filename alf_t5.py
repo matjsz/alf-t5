@@ -8,7 +8,7 @@ import os
 import json
 import time
 import random
-from typing import List, Tuple, Dict, Optional, Any
+from typing import List, Tuple, Dict, Optional, Any, Union
 from collections import defaultdict, Counter
 from tqdm.auto import tqdm
 import matplotlib.pyplot as plt
@@ -839,8 +839,9 @@ class ALFT5Translator:
         num_beams: int = 5,
         temperature: float = 1.0,
         top_p: float = None,
-        do_sample: bool = False
-    ) -> str:
+        do_sample: bool = False,
+        return_confidence: bool = False
+    ) -> Union[str, Tuple[str, float]]:
         """Translate text."""
         if self.model is None or self.tokenizer is None:
             raise ValueError("Model not initialized. Call train() first or load a saved model.")
@@ -878,6 +879,13 @@ class ALFT5Translator:
             "early_stopping": True
         }
         
+        # Add parameters for confidence calculation if needed
+        if return_confidence:
+            gen_kwargs.update({
+                "return_dict_in_generate": True,
+                "output_scores": True
+            })
+        
         if do_sample:
             gen_kwargs.update({
                 "do_sample": True,
@@ -896,10 +904,45 @@ class ALFT5Translator:
                 **gen_kwargs
             )
         
-        # Decode output
-        translation = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Calculate confidence score if requested
+        confidence_score = None
+        if return_confidence:
+            sequences = outputs.sequences
+            scores = outputs.scores
+            sequence = sequences[0]
+            confidence_score = self._calculate_confidence_score(sequence, scores)
+            translation = self.tokenizer.decode(sequence, skip_special_tokens=True)
+        else:
+            if hasattr(outputs, 'sequences'):
+                translation = self.tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
+            else:
+                translation = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         
+        if return_confidence:
+            return translation, confidence_score
         return translation
+    
+    def _calculate_confidence_score(self, sequence, scores):
+        """Calculate confidence score from token probabilities."""
+        sequence = sequence[1:]
+        
+        if not scores or len(scores) == 0:
+            return 1.0
+        
+        token_probs = []
+        for i, token_scores in enumerate(scores):
+            if i >= len(sequence) - 1:
+                break
+                
+            token_idx = sequence[i + 1].item()
+            token_probs_dist = torch.nn.functional.softmax(token_scores[0], dim=-1)
+            token_prob = token_probs_dist[token_idx].item()
+            token_probs.append(token_prob)
+        
+        if token_probs:
+            avg_prob = sum(token_probs) / len(token_probs)
+            return avg_prob
+        return 1.0
     
     def _save_checkpoint(self, path: str):
         """Save model checkpoint."""
