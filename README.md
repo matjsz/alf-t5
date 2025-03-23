@@ -53,14 +53,14 @@ The hardware in which it was tested was:
 ```
 # Clone the repository
 git clone https://github.com/matjsz/alft5.git
-cd alf
+cd alft5
 
 # Create a virtual environment
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install torch transformers peft tqdm matplotlib sentencepiece
+pip install torch transformers peft tqdm matplotlib sentencepiece nltk
 ```
 
 ## Quick Start
