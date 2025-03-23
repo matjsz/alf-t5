@@ -43,6 +43,11 @@ The hardware in which it was tested was:
 
 ## Installation
 
+> [!IMPORTANT]
+> ALF-T5 has a pip package under development, this is just the source code for the framework.
+>
+> Soon the pip package will be available and the process of training your own NMT system will be easy peasy! :)
+
 ### Start locally
 
 ```
@@ -64,6 +69,7 @@ pip install torch transformers peft tqdm matplotlib sentencepiece
 
 #### Important note about T5-Large
 
+> [!NOTE]
 If choosing to use **T5-Large** as the base for **ALF**, it is known that it's not possible to use **FP16** due to a problem with **T5ForConditionalGeneration** (You can [check this issue](https://github.com/huggingface/transformers/issues/10830) to learn more about it), so it's **required** to disable **FP16** on **ALFT5Translator** in order to train it, otherwise it will have **NaN** loss on `train_loss` and a constant `val_loss`.
 
 ```python
@@ -103,23 +109,22 @@ After training your language (either conlang or natural language), you will noti
 
 If you constantly train the language and the values doesn't improve or the `val_loss` remain stuck on a single value, it usually means that your language dataset needs more data and the model isn't able to learn any further (it has a limit too!).
 
-#### Tips
-
-**Target validation loss**: Aim for **0.8-1.5** with a small dataset (30-100 examples). It may be easier for languages with a more clear structure, but languages like Na'vi are usually harder for **ALF-T5** to learn.
-
-**Early stopping patience**: Set to 5-10 epochs, as loss may plateau before improving again
-
-**Overfitting signals**:
-- Training loss much lower than validation loss (gap > 0.5)
-- Validation loss decreasing then increasing
-
-**Underfitting signals**:
-- Both losses remain high (> 2.0)
-- Losses decrease very slowly
-
-If **overfit**: The model may be learning well, but has few data. This indicates that the language is easy to learn.
-
-If **underfit**: The model may be struggling to learn, more data is needed. This indicates that the language is hard to learn.
+> [!TIP]
+> **Target validation loss**: Aim for **0.8-1.5** with a small dataset (30-100 examples). It may be easier for languages with a more clear structure, but languages like Na'vi are usually harder for **ALF-T5** to learn.
+> 
+> **Early stopping patience**: Set to 5-10 epochs, as loss may plateau before improving again
+>
+>**Overfitting signals**:
+>- Training loss much lower than validation loss (gap > 0.5)
+>- Validation loss decreasing then increasing
+>
+>**Underfitting signals**:
+>- Both losses remain high (> 2.0)
+>- Losses decrease very slowly
+>
+>If **overfit**: The model may be learning well, but has few data. This >indicates that the language is easy to learn.
+>
+>If **underfit**: The model may be struggling to learn, more data is needed. >This indicates that the language is hard to learn.
 
 #### BLEU Score
 
