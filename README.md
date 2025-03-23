@@ -28,6 +28,7 @@ In the example above, **T5** learned a language with only 45 examples via transf
 - **Data Augmentation**: Automatically expands limited training data
 - **Interactive Mode**: Command-line interface for real-time translations
 - **Batch Processing**: Support for translating multiple texts or files
+- **Confidence Scores**: Provides confidence metrics for each translation to help gauge reliability
 
 
 ## Hardware
@@ -157,11 +158,28 @@ interpret_bleu_score(0.6961, 100)
 ### Testing The Translator
 
 ```python
+# Basic translation
 english = translator.translate("thou drinkth waterth", direction="c2e")
 target_language = translator.translate("you drink water", direction="e2c")
 
 print(f"English: {english}")
 print(f"Target Language: {target_language}")
+
+# Translation with confidence scores
+english_translation, english_confidence = translator.translate(
+    "thou drinkth waterth", 
+    direction="c2e",
+    return_confidence=True
+)
+
+target_translation, target_confidence = translator.translate(
+    "you drink water", 
+    direction="e2c",
+    return_confidence=True
+)
+
+print(f"English: {english_translation} (Confidence: {english_confidence:.4f})")
+print(f"Target Language: {target_translation} (Confidence: {target_confidence:.4f})")
 ```
 
 ### Using a Trained Translator
@@ -184,7 +202,17 @@ print(f"Target Language: {target_language}")
 ### Interactive Mode
 
 ```shellscript
+# Basic interactive mode
 python alf_app.py --model alf_t5_translator/final_model --mode interactive
+
+# Interactive mode with confidence scores
+python alf_app.py --model alf_t5_translator/final_model --mode interactive --confidence
+```
+
+In interactive mode, you can also toggle confidence scores by typing:
+```
+confidence on  # To enable confidence scores
+confidence off  # To disable confidence scores
 ```
 
 ## Data Format
