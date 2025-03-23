@@ -1,23 +1,23 @@
-from coal_t5 import CoALT5Translator
+from alf_t5 import ALFT5Translator
 
 # Path to your saved model
-model_path = "coal_t5_translator/final_model"  # or "coal_t5_translator/best_model"
+model_path = "alf_t5_translator/final_model"  # or "alf_t5_translator/best_model"
 
 print(f"Loading model from {model_path}...")
 
 # Load the trained model
-translator = CoALT5Translator.load(model_path)
+translator = ALFT5Translator.load(model_path)
 print("Model loaded successfully!")
 
 # Example translations
 examples = [
-    # Conlang to English
+    # Language to English
     ("Ith goeth", "c2e"),
     ("Thouth goeth", "c2e"),
     ("Heth eath", "c2e"),
     ("Sheth eath", "c2e"),
     
-    # English to Conlang
+    # English to Language
     ("I go", "e2c"),
     ("you go", "e2c"),
     ("he eats", "e2c"),
@@ -38,8 +38,8 @@ for text, direction in examples:
     )
     
     # Print the result
-    src_lang = "Conlang" if direction == "c2e" else "English"
-    tgt_lang = "English" if direction == "c2e" else "Conlang"
+    src_lang = "Language" if direction == "c2e" else "English"
+    tgt_lang = "English" if direction == "c2e" else "Language"
     print(f"{src_lang}: {text}")
     print(f"{tgt_lang}: {translation}")
     print("-" * 50)
@@ -62,7 +62,7 @@ while True:
     direction = parts[1].strip()
     
     if direction not in ["c2e", "e2c"]:
-        print("Invalid direction. Use 'c2e' for conlang to English or 'e2c' for English to conlang")
+        print("Invalid direction. Use 'c2e' for language to English or 'e2c' for English to language")
         continue
         
     try:
@@ -74,8 +74,8 @@ while True:
             do_sample=False
         )
         
-        src_lang = "Conlang" if direction == "c2e" else "English"
-        tgt_lang = "English" if direction == "c2e" else "Conlang"
+        src_lang = "Language" if direction == "c2e" else "English"
+        tgt_lang = "English" if direction == "c2e" else "Language"
         print(f"{src_lang}: {text}")
         print(f"{tgt_lang}: {translation}")
     except Exception as e:
