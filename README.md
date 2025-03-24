@@ -21,18 +21,17 @@ In the example above, **T5** learned a language with only 45 examples via transf
 
 ## Features
 
-- **Automatic Language Learning**: Learns language structure, vocabulary, and grammar from translation pairs
-- **Bidirectional Translation**: Translates from target language to English and English to target language
-- **Few-Shot Learning**: Requires only a small dataset of translation examples
-- **Parameter-Efficient Fine-Tuning**: Uses LoRA to fine-tune only a small subset of model parameters
-- **Data Augmentation**: Automatically expands limited training data
-- **Interactive Mode**: Command-line interface for real-time translations
-- **Batch Processing**: Support for translating multiple texts or files
-- **Confidence Scores**: Provides confidence metrics for each translation to help gauge reliability
-- **Advanced Evaluation Metrics**: Evaluates translation quality using BLEU and METEOR scores
-- **Model Architecture Experimentation**: Supports experimenting with different model architectures and hyperparameters
-- **Test Suite**: Comprehensive unit and integration tests
-
+- 🧠 **Automatic Language Learning**: Self-learns syntax, vocabulary, and grammar rules from parallel translation data.
+- ↔️ **Bidirectional Translation**: Flawless two-way translation between English and any target language.
+- 🎯 **Few-Shot Learning**: Achieves high accuracy with minimal training data (e.g., 10–50 examples).
+- ⚡ **Parameter-Efficient Fine-Tuning**: Leverages LoRA to optimize parameters, slashing compute costs.
+- 🔄 **Data Augmentation**: Generates synthetic training data to overcome dataset limitations.
+- ⌨️ **Interactive Mode**: Real-time CLI for on-the-fly translations and rapid prototyping.
+- 📂 **Batch Processing**: Translate thousands of texts/files in parallel for scale workflows.
+- ✅ **Confidence Scores**: Quantifies translation reliability (0–100%) for risk-sensitive applications.
+- 📊 **Advanced Evaluation Metrics**: Automated BLEU/METEOR scoring to benchmark translation quality.
+- ⚙️ **Model Architecture Experimentation**: Plug-and-play framework to test novel architectures.
+- 🧪 **Test Suite**: -Built-in unit/integration tests for robustness and regression prevention.
 
 ## Hardware
 
@@ -40,10 +39,10 @@ In the example above, **T5** learned a language with only 45 examples via transf
 
 The hardware in which it was tested was:
 
-- **NVIDIA T4**: Used during early development, specially on the architecture without learning transfer. Yielded some good insights on performance and capability;
-- **TPU v2**: Also used during early development, but was the first to be used on the learning transfer architecture. Was key to understand the final shape of the system's architecture;
-- **NVIDIA A40**: Yielded awesome insights on later development, as it was used to test T5-Small and T5-Base, the first base models to grant SoTA performance;
-- **NVIDIA A100**: The most powerful and important hardware used in development, could handle many tests and really yielded key insights to understand data structure and how the model was using it to leverage performance.
+- ![T4](https://img.shields.io/badge/NVIDIA-T4-76B900?logo=nvidia&logoColor=white) - Used during early development, specially on the architecture without learning transfer. Yielded some good insights on performance and capability;
+- ![TPU v2](https://img.shields.io/badge/Colab-TPU%20v2-F9AB00?logo=googlecolab&color=525252): Also used during early development, but was the first to be used on the learning transfer architecture. Was key to understand the final shape of the system's architecture;
+- ![A40](https://img.shields.io/badge/NVIDIA-A40-76B900?logo=nvidia&logoColor=white): Yielded awesome insights on later development, as it was used to test T5-Small and T5-Base, the first base models to grant SoTA performance;
+- ![A100](https://img.shields.io/badge/NVIDIA-A100-76B900?logo=nvidia&logoColor=white): The most powerful and important hardware used in development, could handle many tests and really yielded key insights to understand data structure and how the model was using it to leverage performance.
 
 ## Installation
 
