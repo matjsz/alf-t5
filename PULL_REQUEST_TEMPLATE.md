@@ -17,6 +17,8 @@
 
 ## Screenshots (if appropriate):
 
+<!--- If you have any screenshot that would help. Insert them here. --->
+
 ## Types of changes
 
 <!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
