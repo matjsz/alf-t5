@@ -163,7 +163,7 @@ def evaluate_model_bleu(model_path, test_data_file, output_file=None, direction=
         direction: Translation direction ('c2e' or 'e2c')
     """
     # Load model
-    translator = T5ConlangTranslator.load(model_path)
+    translator = ALFT5Translator.load(model_path)
     print(f"Model loaded from {model_path}")
     
     # Load test data
