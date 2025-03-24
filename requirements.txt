@@ -5,4 +5,5 @@ numpy>=1.24.0
 tqdm>=4.66.0
 matplotlib>=3.7.0
 nltk>=3.8.0
-sentencepiece>=0.1.99 
+sentencepiece>=0.1.99
+pandas>=2.0.0 

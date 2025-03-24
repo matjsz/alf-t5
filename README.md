@@ -29,6 +29,9 @@ In the example above, **T5** learned a language with only 45 examples via transf
 - **Interactive Mode**: Command-line interface for real-time translations
 - **Batch Processing**: Support for translating multiple texts or files
 - **Confidence Scores**: Provides confidence metrics for each translation to help gauge reliability
+- **Advanced Evaluation Metrics**: Evaluates translation quality using BLEU and METEOR scores
+- **Model Architecture Experimentation**: Supports experimenting with different model architectures and hyperparameters
+- **Test Suite**: Comprehensive unit and integration tests
 
 
 ## Hardware
@@ -153,6 +156,91 @@ interpret_bleu_score(0.6961, 100)
  'quality': 'Excellent',
  'description': 'Translations are nearly perfect.',
  'context': 'For a medium dataset of 100 examples, this is Excellent.'}
+```
+
+#### METEOR Score
+
+The METEOR score is another evaluation metric that often correlates better with human judgment than BLEU. It takes into account word-to-word matches, including stemming and synonymy matching. This score is applied to your language automatically during training if enabled by `eval_meteor` at `ALFT5Translator`.
+
+| METEOR Score | Interpretation | Translation Quality |
+|-----|-----|-----
+| < 0.20 | Poor | Translations are mostly incorrect or nonsensical. |
+| < 0.30 | Fair | Some words are translated correctly, but grammar is incorrect. |
+| < 0.40 | Moderate | Translations are understandable but contain significant errors. |
+| < 0.50 | Good | Translations are mostly correct with some minor errors. |
+| < 0.60 | Very Good | Translations are fluent and accurate with few errors. |
+| > 0.60 | Excellent | Translations are nearly perfect. |
+
+You can interpret METEOR scores similarly to BLEU:
+
+```python
+from alf_t5 import interpret_meteor_score
+
+interpret_meteor_score(0.7522, 100)
+```
+
+```
+{'score': 0.7522,
+ 'quality': 'Excellent',
+ 'description': 'Translations are nearly perfect.',
+ 'context': 'For a medium dataset of 100 examples, this is Excellent.'}
+```
+
+### Model Architecture Experimentation
+
+ALF-T5 includes a framework for experimenting with different model architectures and hyperparameters. This allows you to find the optimal configuration for your specific language translation task:
+
+```python
+from alf_t5 import ModelExperiment
+
+# Initialize the experiment framework
+experiment = ModelExperiment(
+    base_output_dir="my_experiments",
+    data_file="my_language_data.txt",
+    test_size=0.2,
+    augment=True,
+    metrics=["bleu", "meteor"]
+)
+
+# Add a baseline experiment
+experiment.add_experiment(
+    name="baseline",
+    model_name="t5-small",
+    num_epochs=20,
+    batch_size=16
+)
+
+# Try different configurations with grid search
+experiment.add_grid_search(
+    name_prefix="peft_config",
+    model_names=["t5-small"],
+    peft_r=[4, 8, 16],
+    learning_rate=[1e-4, 3e-4]
+)
+
+# Run all experiments
+results_df = experiment.run_experiments()
+
+# Get the best experiment
+best_exp = experiment.get_best_experiment(metric="meteor_score", higher_is_better=True)
+print(f"Best experiment: {best_exp['name']}")
+
+# Plot results
+experiment.plot_experiment_results()
+```
+
+See `model_experiment_example.py` for a complete example.
+
+### Testing
+
+ALF-T5 includes a comprehensive test suite that validates key functionality:
+
+```shellscript
+# Run all tests
+python tests/run_tests.py
+
+# Run specific test module
+python tests/run_tests.py test_metrics.py
 ```
 
 ### Testing The Translator
