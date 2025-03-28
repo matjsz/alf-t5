@@ -1,0 +1,28 @@
+[project]
+name = "alf-t5"
+version = "1.1.0"
+description = "ALF-T5 - Adaptative Language Framework for T5 is a Machine Learning framework for Neural Machine Translation Systems training and, subsequently, bidirectional translation."
+authors = [
+    {name = "Matheus Silva",email = "matjsz42@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "torch (>=2.0.0)",
+    "transformers (>=4.30.0)",
+    "peft (>=0.5.0)",
+    "numpy (>=1.24.0)",
+    "tqdm (>=4.66.0)",
+    "matplotlib (>=3.7.0)",
+    "nltk (>=3.8.0)",
+    "sentencepiece (>=0.1.99)",
+    "pandas (>=2.0.0)"
+]
+
+[project.scripts]
+alft5 = 'alf_t5.app:run'
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

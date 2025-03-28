@@ -8,8 +8,8 @@ from typing import List, Dict, Tuple
 # Add parent directory to path to import alf_t5 module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from alf_t5 import (
-    ALFT5Translator,
+from alf_t5.translator import ALFT5Translator
+from alf_t5.data import (
     parse_language_data,
     augment_data
 )
@@ -110,12 +110,12 @@ thank you|thanks"""
         translator.save(save_path)
         self.assertTrue(os.path.exists(save_path))
         
-        translation = translator.translate("hello", direction="c2e")
+        translation = translator.translate("hello", direction="t2b")
         self.assertIsInstance(translation, str)
         
         translation, confidence = translator.translate(
             "hello", 
-            direction="c2e",
+            direction="t2b",
             return_confidence=True
         )
         self.assertIsInstance(translation, str)

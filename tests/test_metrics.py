@@ -6,7 +6,7 @@ from typing import List
 # Add parent directory to path to import alf_t5 module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from alf_t5 import (
+from alf_t5.evaluation import (
     evaluate_bleu,
     evaluate_meteor,
     interpret_bleu_score,

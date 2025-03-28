@@ -246,8 +246,8 @@ python tests/run_tests.py test_metrics.py
 
 ```python
 # Basic translation
-english = translator.translate("thou drinkth waterth", direction="c2e")
-target_language = translator.translate("you drink water", direction="e2c")
+english = translator.translate("thou drinkth waterth", direction="t2b")
+target_language = translator.translate("you drink water", direction="b2t")
 
 print(f"English: {english}")
 print(f"Target Language: {target_language}")
@@ -255,13 +255,13 @@ print(f"Target Language: {target_language}")
 # Translation with confidence scores
 english_translation, english_confidence = translator.translate(
     "thou drinkth waterth", 
-    direction="c2e",
+    direction="t2b",
     return_confidence=True
 )
 
 target_translation, target_confidence = translator.translate(
     "you drink water", 
-    direction="e2c",
+    direction="b2t",
     return_confidence=True
 )
 
@@ -278,11 +278,11 @@ from alf_t5 import ALFT5Translator
 translator = ALFT5Translator.load("alf_t5_translator/final_model")
 
 # Translate from the target language to English
-english = translator.translate("thou eath thy appleth", direction="c2e")
+english = translator.translate("thou eath thy appleth", direction="t2b")
 print(f"English: {english}")
 
 # Translate from English to the target language
-target_language = translator.translate("I see you", direction="e2c")
+target_language = translator.translate("I see you", direction="b2t")
 print(f"Target Language: {target_language}")
 ```
 
@@ -376,7 +376,7 @@ Key parameters that can be configured:
 
 ```python
 texts = ["thou eath", "thou walkth toth", "Ith eath thy appleth"]
-directions = ["c2e", "c2e", "c2e"]
+directions = ["t2b", "t2b", "t2b"]
 
 app = ALFTranslatorApp("alf_t5_translator/final_model")
 results = app.batch_translate(texts, directions)
