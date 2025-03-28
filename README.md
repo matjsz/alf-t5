@@ -1,6 +1,6 @@
 <div align="center">
     <h1>ALF-T5</h1>
-    <img src="docs/ALF-T5 Logo.png" width="120rem" />
+    <img src="https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/ALF-T5%20Logo.png" width="120rem" />
     <p>Adaptative Language Framework for T5</p>
     <div style="display: flex; justify-content: center; gap: .5rem;">
         <img src="https://img.shields.io/badge/3.12+-blue?style=plastic&label=python" />
@@ -13,9 +13,9 @@
 
 A neural machine translation system framework that automatically learns and translates natural languages and constructed languages (conlangs) based on a small set of translation examples. This project uses transfer learning with pre-trained language models to achieve high-quality translations with minimal training data.
 
-![Showcase](docs/showcase.png)
+![Showcase](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase.png)
 
-In the example above, **T5** learned a language with only 45 examples via transfer learning and augmentation techniques provided by **ALF** framework. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://huggingface.co/datasets/paulopirozelli/pira)*)
+In the example above, **T5** learned a language with only 45 examples via transfer learning and augmentation techniques provided by **ALF** framework. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase-2.png)*)
 
 ![Showcase 2](docs/showcase-2.png)
 
@@ -46,10 +46,13 @@ The hardware in which it was tested was:
 
 ## Installation
 
-> [!IMPORTANT]
-> ALF-T5 has a pip package under development, this is just the source code for the framework.
->
-> Soon the pip package will be available and the process of training your own NMT system will be easy peasy! :)
+### Install with pip
+
+Installing **ALF-T5** with pip is pretty straight-forward:
+
+```
+pip install alf-t5
+```
 
 ### Start locally
 
@@ -76,11 +79,11 @@ pip install torch transformers peft tqdm matplotlib sentencepiece nltk
 If choosing to use **T5-Large** as the base for **ALF**, it is known that it's not possible to use **FP16** due to a problem with **T5ForConditionalGeneration** (You can [check this issue](https://github.com/huggingface/transformers/issues/10830) to learn more about it), so it's **required** to disable **FP16** on **ALFT5Translator** in order to train it, otherwise it will have **NaN** loss on `train_loss` and a constant `val_loss`.
 
 ```python
-from alf_t5 import ALFT5Translator, extract_dataset
+from alf_t5 import ALFT5Translator
 
 # Example language data
 # .txt, .csv
-data = extract_dataset("my_data.txt")
+data = open("my_data.txt", "r").read()
 # Create and train translator
 translator = ALFT5Translator(
     model_name="t5-small",
@@ -145,7 +148,7 @@ The BLEU score is a number between zero and one that measures the similarity of 
 You can also do the following:
 
 ```python
-from alf_t5 import interpret_bleu_score
+from alf_t5.evaluation import interpret_bleu_score
 
 interpret_bleu_score(0.6961, 100)
 ```
@@ -173,7 +176,7 @@ The METEOR score is another evaluation metric that often correlates better with 
 You can interpret METEOR scores similarly to BLEU:
 
 ```python
-from alf_t5 import interpret_meteor_score
+from alf_t5.evaluation import interpret_meteor_score
 
 interpret_meteor_score(0.7522, 100)
 ```
@@ -190,7 +193,7 @@ interpret_meteor_score(0.7522, 100)
 ALF-T5 includes a framework for experimenting with different model architectures and hyperparameters. This allows you to find the optimal configuration for your specific language translation task:
 
 ```python
-from alf_t5 import ModelExperiment
+from alf_t5.experiment import ModelExperiment
 
 # Initialize the experiment framework
 experiment = ModelExperiment(
@@ -288,12 +291,16 @@ print(f"Target Language: {target_language}")
 
 ### Interactive Mode
 
+> [!TIP] ALF-T5 CLI
+>
+> **ALF-T5** has a CLI interface that is automatically installed via pip. The following examples shows how to use it.
+
 ```shellscript
 # Basic interactive mode
-python alf_app.py --model alf_t5_translator/final_model --mode interactive
+alft5 --model alf_t5_translator/final_model --mode interactive
 
 # Interactive mode with confidence scores
-python alf_app.py --model alf_t5_translator/final_model --mode interactive --confidence
+alft5 --model alf_t5_translator/final_model --mode interactive --confidence
 ```
 
 In interactive mode, you can also toggle confidence scores by typing:
@@ -307,10 +314,11 @@ confidence off  # To disable confidence scores
 The objective of the framework is to make the process of training a translator easier to be done. Having this in mind, the translator accepts language data in the following simplified format:
 
 ```plaintext
-language_text|english_translation
+translation_language_text (e.g., conlang text)|base_language_translation (e.g., English - recommended)
+Thou walketh|You walk
 ```
 
-Each line contains a pair of language text and its English translation, separated by a pipe character (`|`).
+Each line contains a pair of language text and its translation, separated by a pipe character (`|`).
 
 ## Technical Details
 
