@@ -15,9 +15,9 @@ A neural machine translation system framework that automatically learns and tran
 
 ![Showcase](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase.png)
 
-In the example above, **T5** learned a language with only 45 examples via transfer learning and augmentation techniques provided by **ALF** framework. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase-2.png)*)
+In the example above, **T5** learned a language with only 45 examples via transfer learning and augmentation techniques provided by **ALF** framework. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://arxiv.org/abs/2202.02398)*)
 
-![Showcase 2](docs/showcase-2.png)
+![Showcase 2](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase-2.png)
 
 ## Features
 
