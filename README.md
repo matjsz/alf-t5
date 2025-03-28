@@ -1,6 +1,6 @@
 <div align="center">
     <h1>ALF-T5</h1>
-    <img src="docs/ALF-T5 Logo.png" width="120rem" />
+    <img src="https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/ALF-T5%20Logo.png" width="120rem" />
     <p>Adaptative Language Framework for T5</p>
     <div style="display: flex; justify-content: center; gap: .5rem;">
         <img src="https://img.shields.io/badge/3.12+-blue?style=plastic&label=python" />
@@ -13,9 +13,9 @@
 
 A neural machine translation system framework that automatically learns and translates natural languages and constructed languages (conlangs) based on a small set of translation examples. This project uses transfer learning with pre-trained language models to achieve high-quality translations with minimal training data.
 
-![Showcase](docs/showcase.png)
+![Showcase](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase.png)
 
-In the example above, **T5** learned a language with only 45 examples via transfer learning and augmentation techniques provided by **ALF** framework. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://huggingface.co/datasets/paulopirozelli/pira)*)
+In the example above, **T5** learned a language with only 45 examples via transfer learning and augmentation techniques provided by **ALF** framework. The model has also shown positive results for big datasets, as can be seen below on a training task for Portuguese to English questions translation (*special thanks to [Paulo Pirozelli's Pirá: A Bilingual Portuguese-English Dataset for Question-Answering about the Ocean, the Brazilian coast, and climate change](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase-2.png)*)
 
 ![Showcase 2](docs/showcase-2.png)
 
