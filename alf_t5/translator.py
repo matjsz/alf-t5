@@ -44,6 +44,7 @@ from torch.cuda.amp import autocast, GradScaler
 
 from alf_t5.data import parse_language_data, augment_data
 from alf_t5.dataset import ALFDataset
+from alf_t5.evaluation import evaluate_meteor
 
 class ALFT5Translator:
     """ALF translator using T5 model."""
@@ -63,7 +64,7 @@ class ALFT5Translator:
         warmup_ratio: float = 0.1,
         output_dir: str = "alf_t5_translator",
         eval_bleu: bool = True,
-        eval_meteor: bool = True
+        eval_meteor: bool = False
     ):
         self.model_name = model_name
         self.use_peft = use_peft
@@ -235,6 +236,71 @@ class ALFT5Translator:
             "max_bleu": max_score,
             "examples": examples
         }
+    
+    def evaluate_meteor(
+        self,
+        test_data: List[Tuple[str, str]],
+        direction: str = "t2b"
+    ):
+        """
+        Evaluate a trained model using METEOR score on a test dataset
+        
+        Args:
+            model: The trained model
+            test_data_file: File containing test data in format "source|target"
+            output_file: Optional file to save evaluation results
+            direction: Translation direction ('c2e' or 'e2c')
+            
+        Returns:
+            Dictionary containing METEOR scores and examples
+        """
+        translator = self.model
+
+        # Load the model
+        test_pairs = parse_language_data(test_data)
+        
+        # Prepare for evaluation
+        references = []
+        hypotheses = []
+        examples = []
+        
+        # Process depending on direction
+        for language, english in test_pairs:
+            if direction == "t2b":
+                source, reference = language, english
+            else:  # e2c
+                source, reference = english, language
+            
+            # Translate
+            translation = translator.translate(source, direction=direction)
+            
+            # Tokenize for METEOR calculation
+            reference_tokens = nltk.word_tokenize(reference.lower())
+            translation_tokens = nltk.word_tokenize(translation.lower())
+            
+            # Add to references and hypotheses
+            references.append([reference_tokens])  # METEOR expects a list of reference lists
+            hypotheses.append(translation_tokens)
+            
+            # Store example
+            examples.append({
+                "source": source,
+                "reference": reference,
+                "translation": translation
+            })
+        
+        # Calculate METEOR scores
+        meteor_results = evaluate_meteor(references, hypotheses)
+        
+        # Prepare results
+        results = {
+            "direction": direction,
+            "num_examples": len(test_pairs),
+            "corpus_meteor": meteor_results["corpus_meteor"],
+            "examples": examples[:10]  # First 10 examples
+        }
+        
+        return results
 
     def batch_translate(
         self,
