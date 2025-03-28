@@ -26,7 +26,7 @@ class ALFTranslatorApp:
         except Exception as e:
             raise RuntimeError(f"Failed to load model: {e}")
     
-    def translate_text(self, text, direction="c2e", include_confidence=False, **kwargs):
+    def translate_text(self, text, direction="t2b", include_confidence=False, **kwargs):
         """Translate a single text."""
         params = {**self.default_params, **kwargs}
         
@@ -70,7 +70,7 @@ class ALFTranslatorApp:
         
         return results
     
-    def translate_file(self, input_file, output_file, direction="c2e", include_confidence=False, **kwargs):
+    def translate_file(self, input_file, output_file, direction="t2b", include_confidence=False, **kwargs):
         """Translate texts from a file and save results to another file."""
         with open(input_file, 'r', encoding='utf-8') as f:
             lines = [line.strip() for line in f if line.strip()]
@@ -201,14 +201,14 @@ class ALFTranslatorApp:
                 text = parts[0].strip()
                 direction = parts[1].strip()
                 
-                if direction not in ["c2e", "e2c"]:
+                if direction not in ["t2b", "b2t"]:
                     print("Invalid direction. Use 'c2e' for conlang to English or 'e2c' for English to conlang")
                     continue
                 
                 try:
                     result = self.translate_text(text, direction, include_confidence=self.show_confidence)
-                    src_lang = "Conlang" if direction == "c2e" else "English"
-                    tgt_lang = "English" if direction == "c2e" else "Conlang"
+                    src_lang = "Conlang" if direction == "t2b" else "English"
+                    tgt_lang = "English" if direction == "t2b" else "Conlang"
                     
                     print(f"{src_lang}: {text}")
                     
@@ -231,8 +231,8 @@ def run():
                         default="interactive", help="Operation mode")
     parser.add_argument("--input", type=str, help="Input file for file mode")
     parser.add_argument("--output", type=str, help="Output file for file mode")
-    parser.add_argument("--direction", type=str, choices=["c2e", "e2c"], 
-                        default="c2e", help="Translation direction")
+    parser.add_argument("--direction", type=str, choices=["t2b", "b2t"], 
+                        default="t2b", help="Translation direction")
     parser.add_argument("--confidence", action="store_true",
                         help="Include confidence scores in the output")
     
@@ -253,7 +253,7 @@ def run():
         elif args.mode == "batch":
             # Example batch translation
             texts = ["Ith eath", "Thou eath", "Heth eath", "Sheth eath"]
-            directions = ["c2e"] * len(texts)
+            directions = ["t2b"] * len(texts)
             results = app.batch_translate(texts, directions, include_confidence=args.confidence)
             
             for result in results:

@@ -8,7 +8,7 @@ class ALFDataset(Dataset):
         data_pairs: List[Tuple[str, str]], 
         tokenizer,
         max_length: int = 128,
-        direction: str = "c2e"
+        direction: str = "t2b"
     ):
         self.data_pairs = data_pairs
         self.tokenizer = tokenizer
@@ -16,9 +16,9 @@ class ALFDataset(Dataset):
         self.direction = direction
         
         # Set prefix based on direction
-        if direction == "c2e":
+        if direction == "t2b":
             self.prefix = "translate language to english: "
-        else:  # "e2c"
+        else:  # "b2t"
             self.prefix = "translate english to language: "
     
     def __len__(self) -> int:
@@ -29,7 +29,7 @@ class ALFDataset(Dataset):
         src, tgt = self.data_pairs[idx]
         
         # Swap source and target if direction is e2c
-        if self.direction == "e2c":
+        if self.direction == "b2t":
             src, tgt = tgt, src
         
         # Add prefix

@@ -38,7 +38,7 @@ def evaluate_bleu(hypothesis: str, reference: str, weights=(0.25, 0.25, 0.25, 0.
     # Calculate BLEU score
     return sentence_bleu([ref_tokens], hyp_tokens, weights=weights, smoothing_function=smoothing)
 
-def evaluate_model_bleu(model, test_data_file, output_file=None, direction="c2e"):
+def evaluate_model_bleu(model, test_data_file, output_file=None, direction="t2b"):
     """
     Evaluate a trained model using BLEU score.
     
@@ -77,7 +77,7 @@ def evaluate_model_bleu(model, test_data_file, output_file=None, direction="c2e"
     # Print example translations
     print("\nExample Translations:")
     for i, example in enumerate(results["examples"]):
-        if direction == "c2e":
+        if direction == "t2b":
             print(f"Example {i+1}:")
             print(f"Conlang: {example['language']}")
             print(f"Reference: {example['reference']}")
@@ -259,7 +259,7 @@ def interpret_meteor_score(meteor_score: float, dataset_size: Optional[int] = No
     }
 
 # New function to evaluate model with METEOR score
-def evaluate_model_meteor(model, test_data_file, output_file=None, direction="c2e"):
+def evaluate_model_meteor(model, test_data_file, output_file=None, direction="t2b"):
     """
     Evaluate a trained model using METEOR score on a test dataset
     
@@ -288,7 +288,7 @@ def evaluate_model_meteor(model, test_data_file, output_file=None, direction="c2
     
     # Process depending on direction
     for language, english in test_pairs:
-        if direction == "c2e":
+        if direction == "t2b":
             source, reference = language, english
         else:  # e2c
             source, reference = english, language

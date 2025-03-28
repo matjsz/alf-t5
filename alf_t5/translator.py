@@ -167,7 +167,7 @@ class ALFT5Translator:
     def evaluate_bleu(
         self,
         test_data: List[Tuple[str, str]],
-        direction: str = "c2e",
+        direction: str = "t2b",
         batch_size: int = 8,
         ngram_weights: Tuple[float, ...] = (0.25, 0.25, 0.25, 0.25)
     ) -> Dict[str, Any]:
@@ -183,10 +183,10 @@ class ALFT5Translator:
             batch = test_data[i:i+batch_size]
             
             # Prepare source and reference texts
-            if direction == "c2e":
+            if direction == "t2b":
                 sources = [pair[0] for pair in batch]
                 targets = [pair[1] for pair in batch]
-            else:  # "e2c"
+            else:  # "b2t"
                 sources = [pair[1] for pair in batch]
                 targets = [pair[0] for pair in batch]
             
@@ -239,7 +239,7 @@ class ALFT5Translator:
     def batch_translate(
         self,
         texts: List[str],
-        direction: str = "c2e",
+        direction: str = "t2b",
         max_length: int = None,
         num_beams: int = 5
     ) -> List[str]:
@@ -248,9 +248,9 @@ class ALFT5Translator:
             max_length = self.max_length
         
         # Set prefix based on direction
-        if direction == "c2e":
+        if direction == "t2b":
             prefix = "translate language to english: "
-        else:  # "e2c"
+        else:  # "b2t"
             prefix = "translate english to language: "
         
         # Prepare inputs
@@ -326,14 +326,14 @@ class ALFT5Translator:
             train_data,
             self.tokenizer,
             max_length=self.max_length,
-            direction="c2e"
+            direction="t2b"
         )
         
         train_dataset_e2c = ALFDataset(
             train_data,
             self.tokenizer,
             max_length=self.max_length,
-            direction="e2c"
+            direction="b2t"
         )
         
         # Combine datasets for bidirectional training
@@ -344,14 +344,14 @@ class ALFT5Translator:
             test_data,
             self.tokenizer,
             max_length=self.max_length,
-            direction="c2e"
+            direction="t2b"
         )
         
         val_dataset_e2c = ALFDataset(
             test_data,
             self.tokenizer,
             max_length=self.max_length,
-            direction="e2c"
+            direction="b2t"
         )
         
         # Combine validation datasets
@@ -478,7 +478,7 @@ class ALFT5Translator:
                 print(f"Evaluating BLEU score after epoch {epoch+1}...")
                 
                 # Evaluate on test data
-                bleu_results = self.evaluate_bleu(test_data, direction="c2e")
+                bleu_results = self.evaluate_bleu(test_data, direction="t2b")
                 
                 # Store in history
                 if "bleu_scores" not in self.history:
@@ -545,7 +545,7 @@ class ALFT5Translator:
         
         if eval_bleu:
             print("Performing final BLEU evaluation...")
-            final_bleu_results = self.evaluate_bleu(test_data, direction="c2e")
+            final_bleu_results = self.evaluate_bleu(test_data, direction="t2b")
             print(f"Final BLEU Score: {final_bleu_results['corpus_bleu']:.4f}")
             
             # Save detailed BLEU results
@@ -563,7 +563,7 @@ class ALFT5Translator:
     def translate(
         self,
         text: str,
-        direction: str = "c2e",
+        direction: str = "t2b",
         max_length: int = None,
         num_beams: int = 5,
         temperature: float = 1.0,
@@ -580,9 +580,9 @@ class ALFT5Translator:
             max_length = self.max_length
         
         # Set prefix based on direction
-        if direction == "c2e":
+        if direction == "t2b":
             prefix = "translate language to english: "
-        else:  # "e2c"
+        else:  # "b2t"
             prefix = "translate english to language: "
         
         # Prepare input
