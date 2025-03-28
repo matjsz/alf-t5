@@ -13,7 +13,7 @@ Main components:
 - Evaluation: BLEU and METEOR score calculation
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2"
 
 from alf_t5.translator import ALFT5Translator
 from alf_t5.dataset import ALFDataset
