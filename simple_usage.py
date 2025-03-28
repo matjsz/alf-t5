@@ -12,16 +12,16 @@ print("Model loaded successfully!")
 # Example translations
 examples = [
     # Language to English
-    ("Ith goeth", "c2e"),
-    ("Thouth goeth", "c2e"),
-    ("Heth eath", "c2e"),
-    ("Sheth eath", "c2e"),
+    ("Ith goeth", "t2b"),
+    ("Thouth goeth", "t2b"),
+    ("Heth eath", "t2b"),
+    ("Sheth eath", "t2b"),
     
     # English to Language
-    ("I go", "e2c"),
-    ("you go", "e2c"),
-    ("he eats", "e2c"),
-    ("she eats", "e2c")
+    ("I go", "b2t"),
+    ("you go", "b2t"),
+    ("he eats", "b2t"),
+    ("she eats", "b2t")
 ]
 
 print("\nPerforming translations:")
@@ -38,8 +38,8 @@ for text, direction in examples:
     )
     
     # Print the result
-    src_lang = "Language" if direction == "c2e" else "English"
-    tgt_lang = "English" if direction == "c2e" else "Language"
+    src_lang = "Language" if direction == "t2b" else "English"
+    tgt_lang = "English" if direction == "t2b" else "Language"
     print(f"{src_lang}: {text}")
     print(f"{tgt_lang}: {translation}")
     print("-" * 50)
@@ -61,7 +61,7 @@ while True:
     text = parts[0].strip()
     direction = parts[1].strip()
     
-    if direction not in ["c2e", "e2c"]:
+    if direction not in ["t2b", "b2t"]:
         print("Invalid direction. Use 'c2e' for language to English or 'e2c' for English to language")
         continue
         
@@ -74,8 +74,8 @@ while True:
             do_sample=False
         )
         
-        src_lang = "Language" if direction == "c2e" else "English"
-        tgt_lang = "English" if direction == "c2e" else "Language"
+        src_lang = "Language" if direction == "t2b" else "English"
+        tgt_lang = "English" if direction == "t2b" else "Language"
         print(f"{src_lang}: {text}")
         print(f"{tgt_lang}: {translation}")
     except Exception as e:

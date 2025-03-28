@@ -9,15 +9,15 @@ def main():
     print("Model loaded successfully!")
     
     examples = [
-        ("Ith goeth", "c2e"),
-        ("Thouth goeth", "c2e"),
-        ("Heth eath", "c2e"),
-        ("Sheth eath", "c2e"),
+        ("Ith goeth", "t2b"),
+        ("Thouth goeth", "t2b"),
+        ("Heth eath", "t2b"),
+        ("Sheth eath", "t2b"),
         
-        ("I go", "e2c"),
-        ("you go", "e2c"),
-        ("he eats", "e2c"),
-        ("she eats", "e2c")
+        ("I go", "b2t"),
+        ("you go", "b2t"),
+        ("he eats", "b2t"),
+        ("she eats", "b2t")
     ]
     
     print("\nPerforming translations with confidence scores:")
@@ -33,8 +33,8 @@ def main():
             return_confidence=True
         )
         
-        src_lang = "Language" if direction == "c2e" else "English"
-        tgt_lang = "English" if direction == "c2e" else "Language"
+        src_lang = "Language" if direction == "t2b" else "English"
+        tgt_lang = "English" if direction == "t2b" else "Language"
         print(f"{src_lang}: {text}")
         print(f"{tgt_lang}: {translation}")
         print(f"Confidence: {confidence:.4f}")

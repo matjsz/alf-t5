@@ -110,12 +110,12 @@ thank you|thanks"""
         translator.save(save_path)
         self.assertTrue(os.path.exists(save_path))
         
-        translation = translator.translate("hello", direction="c2e")
+        translation = translator.translate("hello", direction="t2b")
         self.assertIsInstance(translation, str)
         
         translation, confidence = translator.translate(
             "hello", 
-            direction="c2e",
+            direction="t2b",
             return_confidence=True
         )
         self.assertIsInstance(translation, str)
