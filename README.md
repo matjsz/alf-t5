@@ -5,7 +5,12 @@
     <div style="display: flex; justify-content: center; gap: .5rem;">
         <img src="https://img.shields.io/badge/3.12+-blue?style=plastic&label=python" />
         <img src="https://img.shields.io/badge/2.4+-orange?style=plastic&label=torch" />
-        <img src="https://img.shields.io/pypi/v/alf-t5" />
+        <a href="https://pypi.org/project/alf-t5/">
+            <img src="https://img.shields.io/pypi/v/alf-t5" />
+        </a>
+        <a href="https://pypi.org/project/alf-t5/">
+            <img src="https://static.pepy.tech/badge/alf-t5" />
+        </a>
     </div>
 </div>
 
