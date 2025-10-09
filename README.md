@@ -1,7 +1,7 @@
 <div align="center">
     <h1>ALF-T5</h1>
     <img src="https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/ALF-T5%20Logo.png" width="120rem" />
-    <p>Adaptative Language Framework for T5</p>
+    <p>Adaptive Language Framework for T5</p>
     <div style="display: flex; justify-content: center; gap: .5rem;">
         <img src="https://img.shields.io/badge/3.12+-blue?style=plastic&label=python" />
         <img src="https://img.shields.io/badge/2.4+-orange?style=plastic&label=torch" />
