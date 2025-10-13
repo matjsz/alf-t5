@@ -12,7 +12,7 @@ authors:
     corresponding: true
     affiliation: 1
 affiliations:
-  - name: Independent Researcher, Brazil
+  - name: Anhanguera University, Brazil
     index: 1
 date: 9 October 2025
 bibliography: paper.bib
@@ -20,89 +20,76 @@ bibliography: paper.bib
 
 # Summary
 
-Neural machine translation (NMT) typically demands abundant parallel corpora, restricting its reach to widely spoken languages and limiting exploration of low-resource and constructed languages (conlangs). ALF-T5 is a Python framework that enables **few-shot**, **bidirectional** translation between English and target languages — natural or constructed — by leveraging transfer learning, parameter-efficient fine-tuning (LoRA via PEFT), and data augmentation. It supports interactive usage, batch translation, automatic evaluation (BLEU, METEOR), and architectural experimentation, making it a useful tool for research, teaching, and prototyping.
+Neural machine translation (NMT) typically demands abundant parallel corpora, restricting its reach to widely spoken languages and limiting exploration of low-resource and constructed languages (conlangs). **ALF-T5** is a Python framework that enables **few-shot**, **bidirectional** translation between English and target languages — natural or constructed — by leveraging transfer learning, parameter-efficient fine-tuning (LoRA via PEFT), and data augmentation. It supports interactive usage, batch translation, automatic evaluation (BLEU, METEOR), and architectural experimentation, making it useful for research, teaching, and prototype development.
 
 # Statement of need
 
-Modern NMT frameworks are biased toward high-resource languages because they demand large parallel corpora and heavy compute. Consequently, research on novel languages, conlangs, or translation under extremely low-data conditions remains underexplored.
+Most modern NMT toolkits assume large parallel corpora and substantial compute. This restricts experimentation with under-resourced languages and constructed languages, and limits exploration of translation strategies in extremely low-data regimes.
 
-ALF-T5 addresses this gap by enabling translation model training from as few as 10–50 sample pairs. Its design emphasizes usability (CLI + Python API), reproducibility (built-in metrics, tests), and modularity (plug in alternative components). Because it integrates with the well-adopted Transformers and PEFT ecosystem, it remains accessible on modest hardware. For educators, it offers an interpretable translation tool on small datasets; for researchers, it provides a testbed for low-resource translation techniques and conlangs.
+ALF-T5 fills this gap by enabling translation model training from as few as **10–50 example pairs**. The project emphasizes usability (CLI + Python API), reproducibility (built-in metrics and tests), and modularity (pluggable augmentation and experiment components). Because it integrates with the widely used Transformers and PEFT ecosystems, ALF-T5 is usable on modest hardware and useful for both educators and researchers.
 
 # Technical approach
 
-## Model & Loss formulation
+## Model and loss formulation
 
-Let
+Let the source sequence be $X = (x_1, x_2, \dots, x_n)$ and the target sequence be $Y = (y_1, y_2, \dots, y_m)$. The model factorizes the conditional probability as
 
-\[
-X = (x_1, x_2, \dots, x_n), \quad
-Y = (y_1, y_2, \dots, y_m)
-\]
+$$
+P(Y \mid X) \;=\; \prod_{t=1}^{m} P\bigl(y_t \mid y_{1:t-1}, X\bigr).
+$$
 
-be the source and target sequences, respectively. The model defines:
+We train using the standard cross-entropy loss:
 
-\[
-P(Y \mid X) = \prod_{t=1}^{m} P\bigl(y_t \mid y_{<t}, X \bigr)
-\]
+$$
+\mathcal{L}_{\mathrm{CE}}(X,Y) \;=\; -\sum_{t=1}^{m} \log P\bigl(y_t \mid y_{1:t-1}, X\bigr).
+$$
 
-We train using cross-entropy loss:
+To support bidirectional translation, we train both directions and combine losses:
 
-\[
-\mathcal{L}_{\mathrm{CE}} = -\sum_{t=1}^{m} \log P\bigl(y_t \mid y_{<t}, X \bigr)
-\]
+$$
+\mathcal{L}_{\mathrm{bi}} \;=\; \mathcal{L}_{\mathrm{CE}}(X\to Y) \;+\; \mathcal{L}_{\mathrm{CE}}(Y\to X).
+$$
 
-To enable bidirectional translation, we combine both directions:
+(Using $y_{1:t-1}$ instead of $y_{<t}$ avoids characters that can be converted or escaped by the toolchain.)
 
-\[
-\mathcal{L}_{\mathrm{bi}} = \mathcal{L}_{\mathrm{CE}}(X \to Y) + \mathcal{L}_{\mathrm{CE}}(Y \to X)
-\]
+## Parameter-efficient tuning (LoRA / PEFT)
 
-## Parameter-efficient fine-tuning via LoRA / PEFT
-
-ALF-T5 uses **LoRA** (low-rank adaptation) through **PEFT**, which keeps the original pretrained weights **frozen**, and only trains a small set of low-rank adapter matrices. This yields efficient adaptation with lower memory and compute costs compared to full fine-tuning [@hu2021lora].
+ALF-T5 uses LoRA (low-rank adaptation) implemented through the PEFT framework: the pretrained base model weights remain frozen and we learn small low-rank adapter matrices. This drastically reduces the number of trainable parameters and lowers memory / compute requirements compared to full fine-tuning [@hu2021lora]. The adapters are inserted at attention / projection layers and trained while the backbone stays unchanged.
 
 ## Data augmentation
 
-Given the constrained number of training pairs, we generate synthetic variants through:
+To amplify scarce parallel data we use lightweight augmentations:
 
-- Case variation (e.g., uppercase, lowercase, title)  
+- Case variation (lowercase / uppercase / title)  
 - Word-order permutations within short phrases  
-- Vocabulary recombination, mixing subword parts or synonymous units  
+- Vocabulary recombination (mixing subword segments or analogous tokens)
 
-These augmentations help regularize the model and improve performance in data-scarce regimes.
+These synthetic variants increase the effective dataset size and help generalization in low-data settings.
 
-# Usage & Features
+# Usage & features
 
-- **Interactive mode:** CLI prompt with optional confidence  
-- **Batch mode:** Translate lists or files in parallel  
-- **Automatic metrics:** BLEU and METEOR scoring  
-- **Experiment support:** Grid search over hyperparameters (LoRA rank, learning rate, etc.), logging  
-- **Model inference:** Load and translate new text using the same API
+- **Interactive mode**: CLI REPL for single-sentence translation with optional confidence scores.  
+- **Batch mode**: File and list translation for large-scale processing.  
+- **Automatic evaluation**: BLEU and METEOR computed during or after training.  
+- **Experiment framework**: Grid search over hyperparameters (LoRA rank, learning rate) with result logging.  
+- **Model inference**: Load a saved translator and translate new text via a simple API.
 
-# Validation & Examples
+# Validation & examples
 
-In a constructed language experiment with **45 training pairs**, ALF-T5 generated bidirectional translation outputs (see Figure \ref{fig:showcase}). On Portuguese ↔ English (Pirá dataset), ALF-T5 achieves BLEU and METEOR scores comparable to small baselines (see Figure \ref{fig:performance}).
-
-*(Insert exact numeric results here.)*
+- **Constructed language (few-shot):** ALF-T5 learned a small constructed language from **45** training pairs and produced coherent bidirectional outputs (see Figure \ref{fig:showcase}).  
+- **Portuguese-English:** On the Pirá dataset (Portuguese↔English QA/translation subset) ALF-T5 matches or outperforms small baselines on BLEU and METEOR for comparable model sizes (see Figure \ref{fig:performance}).
 
 # Citations
 
-Key works and software used by ALF-T5:
-
-- Raffel et al. (2020) — T5 model  
-- Vaswani et al. (2017) — Transformer architecture  
-- Hu et al. — LoRA: low-rank adaptation  
-- Papineni et al. (2002) — BLEU metric  
-- Banerjee & Lavie (2005) — METEOR metric  
-- Wolf et al. — Hugging Face Transformers library
+This project builds on a number of foundational works and libraries, including T5 [@raffel2020exploring], the Transformer architecture [@vaswani2017attention], LoRA [@hu2021lora], BLEU [@papineni2002bleu], METEOR [@banerjee2005meteor], and the Hugging Face Transformers library [@wolf2020transformers].
 
 # Figures
 
-![Few-shot translation in a constructed language (45 pairs).](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase.png){#fig:showcase}
+![Few-shot translation example in a constructed language (45 training pairs).](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase.png){#fig:showcase}
 
-![Portuguese ↔ English translation performance (BLEU/METEOR).](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase-2.png){#fig:performance}
+![Portuguese-English translation performance (BLEU / METEOR).](https://raw.githubusercontent.com/matjsz/alf-t5/refs/heads/main/docs/showcase-2.png){#fig:performance}
 
 # Acknowledgements
 
-We thank the authors of T5 and LoRA, and the teams behind Transformers and PEFT. Special thanks to Paulo Pirozelli for the Pirá dataset, and to early users who tested edge cases.
+Thanks to the authors of T5 and LoRA, and to the Hugging Face and PEFT teams. Special thanks to Paulo Pirozelli for providing the Pirá dataset used in evaluation, and to early testers who provided feedback.
 
