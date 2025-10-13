@@ -65,15 +65,3 @@ ALF-T5 relies on several foundational libraries and research:
 # Acknowledgements
 
 We acknowledge the authors of T5 and LoRA for their research and foundational libraries. We also thank the developers of Hugging Face Transformers and PEFT for enabling accessible and efficient model training. Special thanks to Paulo Pirozelli for providing the Pirá Portuguese-English dataset used in model evaluation.
-
-```
-
-Software can be cited using:
-
-```bibtex
-@software{alft5,
-  author = {Matheus J.G. Silva},
-  title = {ALF-T5: Adaptive Neural Machine Translation Framework for Constructed and Natural Languages},
-  year = {2025},
-  url = {https://github.com/matjsz/alf-t5}
-}
