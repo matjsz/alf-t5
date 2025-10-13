@@ -20,7 +20,7 @@ bibliography: paper.bib
 
 # Summary
 
-Neural machine translation (NMT) typically demands abundant parallel corpora, restricting its reach to widely spoken languages and limiting exploration of low-resource and constructed languages (conlangs). **ALF-T5** is a Python framework that enables **few-shot**, **bidirectional** translation between English and target languages — natural or constructed — by leveraging transfer learning, parameter-efficient fine-tuning (LoRA via PEFT), and data augmentation. It supports interactive usage, batch translation, automatic evaluation (BLEU, METEOR), and architectural experimentation, making it useful for research, teaching, and prototype development.
+Neural machine translation (NMT) typically demands abundant parallel corpora, restricting its reach to widely spoken languages and limiting exploration of low-resource and constructed languages (conlangs). **ALF-T5** is a Python framework that enables **few-shot**, **bidirectional** translation between English and target languages, natural or constructed, by leveraging transfer learning, parameter-efficient fine-tuning (LoRA via PEFT), and data augmentation. It supports interactive usage, batch translation, automatic evaluation (BLEU, METEOR), and architectural experimentation, making it useful for research, teaching, and prototype development.
 
 # Statement of need
 
@@ -74,11 +74,6 @@ These synthetic variants increase the effective dataset size and help generaliza
 - **Experiment framework**: Grid search over hyperparameters (LoRA rank, learning rate) with result logging.  
 - **Model inference**: Load a saved translator and translate new text via a simple API.
 
-# Validation & examples
-
-- **Constructed language (few-shot):** ALF-T5 learned a small constructed language from **45** training pairs and produced coherent bidirectional outputs (see Figure \ref{fig:showcase}).  
-- **Portuguese-English:** On the Pirá dataset (Portuguese↔English QA/translation subset) ALF-T5 matches or outperforms small baselines on BLEU and METEOR for comparable model sizes (see Figure \ref{fig:performance}).
-
 # Citations
 
 This project builds on a number of foundational works and libraries, including T5 [@raffel2020exploring], the Transformer architecture [@vaswani2017attention], LoRA [@hu2021lora], BLEU [@papineni2002bleu], METEOR [@banerjee2005meteor], and the Hugging Face Transformers library [@wolf2020transformers].
@@ -92,4 +87,3 @@ This project builds on a number of foundational works and libraries, including T
 # Acknowledgements
 
 Thanks to the authors of T5 and LoRA, and to the Hugging Face and PEFT teams. Special thanks to Paulo Pirozelli for providing the Pirá dataset used in evaluation, and to early testers who provided feedback.
-
